@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  ui:
+    build: .
+    container_name: digitalboard-ui
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    networks:
+      - airport_net
+
+networks:
+  airport_net:
+    external: true
+    name: airport_net
