@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-background: #0a0a0f;
+  --color-foreground: #ededed;
+  --color-primary: #00d4ff;
+  --color-primary-dark: #0099cc;
+  --color-accent: #ff6b35;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-card-bg: rgba(255, 255, 255, 0.05);
+  --color-card-border: rgba(255, 255, 255, 0.1);
+  --color-glass-bg: rgba(255, 255, 255, 0.08);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
 :root {
   --background: #0a0a0f;
   --foreground: #ededed;
@@ -14,32 +30,9 @@
   --glass-bg: rgba(255, 255, 255, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-accent: var(--accent);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
-  --color-card-bg: var(--card-bg);
-  --color-card-border: var(--card-border);
-  --color-glass-bg: var(--glass-bg);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
 }
 
@@ -138,6 +131,11 @@ body {
   box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }
 
+.status-scheduled {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
 .status-delayed {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
@@ -161,6 +159,11 @@ body {
 .status-arrived {
   background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
   box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+
+/* Custom Grid 13 Columns */
+.grid-cols-13 {
+  grid-template-columns: repeat(13, minmax(0, 1fr));
 }
 
 /* Button Styles */

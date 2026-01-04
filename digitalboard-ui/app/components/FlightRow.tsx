@@ -19,18 +19,19 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
 
   const getStatusClass = (statusName?: string) => {
     const status = statusName?.toLowerCase() || '';
-    if (status.includes('on time') || status.includes('scheduled')) return 'status-on-time';
+    if (status.includes('on time')) return 'status-on-time';
+    if (status.includes('scheduled')) return 'status-scheduled';
     if (status.includes('delay')) return 'status-delayed';
     if (status.includes('cancel')) return 'status-cancelled';
     if (status.includes('boarding')) return 'status-boarding';
     if (status.includes('depart')) return 'status-departed';
     if (status.includes('arriv') || status.includes('landed')) return 'status-arrived';
-    return 'status-on-time';
+    return 'status-scheduled';
   };
 
   return (
     <div 
-      className="flight-row animate-slide-in grid grid-cols-12 items-center gap-4"
+      className="flight-row animate-slide-in grid grid-cols-13 items-center gap-4"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Flight Code */}
@@ -60,9 +61,9 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
           <div className="w-8 h-[2px] bg-gradient-to-r from-transparent to-primary/50"></div>
           <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
             {flight.flight_type === 'departure' ? (
-              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-            ) : (
               <path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49s5.43-1.45 14.49-3.88c.79-.22 1.27-1.05 1.15-1.4z" />
+            ) : (
+              <path d="M2.5 19h19v2h-19v-2zm7.18-5.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-5.31-1.42-2.76-9.02L10.12 2v8.28L5.15 8.95l-.93-2.32-1.45-.39v5.17l6.91 1.86z" />
             )}
           </svg>
           <div className="w-8 h-[2px] bg-gradient-to-r from-primary/50 to-transparent"></div>
@@ -83,10 +84,14 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
         )}
       </div>
 
-      {/* Terminal & Gate */}
+      {/* Terminal */}
       <div className="col-span-1">
         <div className="text-lg font-semibold text-white">{flight.terminal?.terminal_code || '-'}</div>
-        <div className="text-sm text-primary">{flight.gate?.gate_code || '-'}</div>
+      </div>
+
+      {/* Gate */}
+      <div className="col-span-1">
+        <div className="text-lg font-semibold text-primary">{flight.gate?.gate_code || '-'}</div>
       </div>
 
       {/* Status */}

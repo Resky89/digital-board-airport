@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8082';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://localhost:8443';
 
 // Token management
 let accessToken: string | null = null;

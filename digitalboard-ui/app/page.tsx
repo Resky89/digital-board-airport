@@ -12,6 +12,7 @@ export default function FlightBoard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'departure' | 'arrival'>('all');
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<string>('');
 
   const fetchFlights = useCallback(async () => {
     try {
@@ -27,9 +28,20 @@ export default function FlightBoard() {
 
       const response = await publicApi.getFlights(params);
       if (response.success) {
-        setFlights(response.data || []);
+        const items = Array.isArray(response?.data?.items)
+          ? response.data.items
+          : Array.isArray(response?.data)
+          ? response.data
+          : [];
+        const flightsData: Flight[] = items.map((item: any) => ({
+          ...item,
+          id: item.id ?? item.flight_id,
+          flight_type: (item.flight_type || '').toString().toLowerCase(),
+        }));
+        setFlights(flightsData);
+        setLastUpdate(new Date().toLocaleTimeString('id-ID'));
       } else {
-        setError('Gagal memuat data penerbangan');
+        setError(response.message || 'Gagal memuat data penerbangan');
       }
     } catch {
       setError('Terjadi kesalahan saat memuat data');
@@ -44,16 +56,16 @@ export default function FlightBoard() {
     return () => clearInterval(interval);
   }, [fetchFlights]);
 
-  const filteredFlights = flights.filter(flight => {
+  const filteredFlights = Array.isArray(flights) ? flights.filter(flight => {
     if (activeTab === 'all') return true;
     return flight.flight_type === activeTab;
-  });
+  }) : [];
 
   return (
     <div className="min-h-screen gradient-bg">
-      <div className="relative z-10">
+      <div className="relative z-10 pt-6">
         {/* Header */}
-        <header className="glass-card mx-6 mt-6 p-6">
+        <header className="glass-card mx-6 pt-6 pb-6 px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center animate-glow">
@@ -84,7 +96,7 @@ export default function FlightBoard() {
               className={`tab-btn rounded-lg flex items-center gap-2 ${activeTab === 'departure' ? 'active bg-primary/20' : ''}`}
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                <path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49s5.43-1.45 14.49-3.88c.79-.22 1.27-1.05 1.15-1.4z" />
               </svg>
               Departures
             </button>
@@ -93,7 +105,7 @@ export default function FlightBoard() {
               className={`tab-btn rounded-lg flex items-center gap-2 ${activeTab === 'arrival' ? 'active bg-primary/20' : ''}`}
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49s5.43-1.45 14.49-3.88c.79-.22 1.27-1.05 1.15-1.4z" />
+                <path d="M2.5 19h19v2h-19v-2zm7.18-5.73l4.35 1.16 5.31 1.42c.8.21 1.62-.26 1.84-1.06.21-.8-.26-1.62-1.06-1.84l-5.31-1.42-2.76-9.02L10.12 2v8.28L5.15 8.95l-.93-2.32-1.45-.39v5.17l6.91 1.86z" />
               </svg>
               Arrivals
             </button>
@@ -103,13 +115,14 @@ export default function FlightBoard() {
         {/* Flight Table Header */}
         <div className="mx-6 mt-6">
           <div className="glass-card p-4">
-            <div className="grid grid-cols-12 items-center gap-4 text-xs font-semibold uppercase tracking-wider text-primary">
+            <div className="grid grid-cols-13 items-center gap-4 text-xs font-semibold uppercase tracking-wider text-primary">
               <div className="col-span-2">Flight</div>
               <div className="col-span-2">Origin</div>
               <div className="col-span-1"></div>
               <div className="col-span-2">Destination</div>
               <div className="col-span-2">Time</div>
               <div className="col-span-1">Terminal</div>
+              <div className="col-span-1">Gate</div>
               <div className="col-span-2 text-right">Status</div>
             </div>
           </div>
@@ -154,7 +167,7 @@ export default function FlightBoard() {
 
         {/* Footer */}
         <footer className="p-6 text-center text-white/40 text-sm">
-          <p>Data diperbarui setiap 30 detik • Last update: {new Date().toLocaleTimeString('id-ID')}</p>
+          <p>Data diperbarui setiap 30 detik{lastUpdate && ` • Last update: ${lastUpdate}`}</p>
         </footer>
       </div>
     </div>

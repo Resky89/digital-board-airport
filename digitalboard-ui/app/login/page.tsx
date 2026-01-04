@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -58,16 +59,17 @@ export default function LoginPage() {
                 Email Address
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-white/40 pointer-events-none z-10">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </span>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-12"
+                  className="input-field"
+                  style={{ paddingLeft: '48px' }}
                   placeholder="admin@example.com"
                   required
                   autoComplete="email"
@@ -80,7 +82,7 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-white/40 pointer-events-none z-10">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
@@ -89,7 +91,8 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-12 pr-12"
+                  className="input-field"
+                  style={{ paddingLeft: '48px', paddingRight: '48px' }}
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
@@ -97,7 +100,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
