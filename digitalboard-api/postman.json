@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "DigitalBoard API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8082", "type": "string" },
+    { "key": "email", "value": "", "type": "string" },
+    { "key": "password", "value": "", "type": "string" },
+    { "key": "access_token", "value": "", "type": "string" },
+    { "key": "refresh_token", "value": "", "type": "string" },
+    { "key": "flight_id", "value": "", "type": "string" },
+    { "key": "country_id", "value": "", "type": "string" },
+    { "key": "airline_id", "value": "", "type": "string" },
+    { "key": "airport_id", "value": "", "type": "string" },
+    { "key": "terminal_id", "value": "", "type": "string" },
+    { "key": "gate_id", "value": "", "type": "string" },
+    { "key": "flight_status_id", "value": "", "type": "string" },
+    { "key": "user_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Flights",
+          "item": [
+            {
+              "name": "List Flights",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/flights?airline=&origin=&destination=&status=&type=&from=&to=&code=&terminal=&gate=&sort=scheduled_time&order=asc&per_page=20"
+              }
+            },
+            {
+              "name": "Get Flight",
+              "request": {
+                "method": "GET",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/flights/{{flight_id}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Auth (Public)",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/admin/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  var json = pm.response.json();",
+                  "  if (json && json.data) {",
+                  "    if (json.data.access_token) pm.collectionVariables.set('access_token', json.data.access_token);",
+                  "    if (json.data.refresh_token) pm.collectionVariables.set('refresh_token', json.data.refresh_token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/api/admin/auth/refresh"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  var json = pm.response.json();",
+                  "  if (json && json.data) {",
+                  "    if (json.data.access_token) pm.collectionVariables.set('access_token', json.data.access_token);",
+                  "    if (json.data.refresh_token) pm.collectionVariables.set('refresh_token', json.data.refresh_token);",
+                  "  }",
+                  "} catch (e) {}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin (Protected)",
+      "auth": {
+        "type": "bearer",
+        "bearer": [ { "key": "token", "value": "{{access_token}}", "type": "string" } ]
+      },
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Accept", "value": "application/json" }
+                ],
+                "url": "{{base_url}}/api/admin/auth/logout"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.collectionVariables.unset('access_token');",
+                      "pm.collectionVariables.unset('refresh_token');"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Flights",
+          "item": [
+            { "name": "List Flights", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flights?airline=&origin=&destination=&status=&type=&from=&to=&code=&terminal=&gate=&sort=scheduled_time&order=asc&per_page=20" } },
+            { "name": "Get Flight", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flights/{{flight_id}}" } },
+            { "name": "Create Flight", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"flight_code\": \"GA123\",\n  \"airline_id\": 1,\n  \"origin_airport_id\": 1,\n  \"destination_airport_id\": 2,\n  \"gate_id\": 1,\n  \"terminal_id\": 1,\n  \"status_id\": 1,\n  \"flight_type\": \"departure\",\n  \"scheduled_time\": \"2026-01-04T10:00:00Z\",\n  \"actual_time\": null\n}" }, "url": "{{base_url}}/api/admin/flights" } },
+            { "name": "Update Flight", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"status_id\": 2,\n  \"gate_id\": 1,\n  \"terminal_id\": 1,\n  \"actual_time\": \"2026-01-04T10:05:00Z\"\n}" }, "url": "{{base_url}}/api/admin/flights/{{flight_id}}" } },
+            { "name": "Delete Flight", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flights/{{flight_id}}" } }
+          ]
+        },
+        {
+          "name": "Countries",
+          "item": [
+            { "name": "List Countries", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/countries?q=&sort=country_name&order=asc&per_page=20" } },
+            { "name": "Get Country", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/countries/{{country_id}}" } },
+            { "name": "Create Country", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"country_code\": \"ID\",\n  \"country_name\": \"Indonesia\"\n}" }, "url": "{{base_url}}/api/admin/countries" } },
+            { "name": "Update Country", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"country_name\": \"Republic of Indonesia\",\n  \"country_code\": \"IDN\"\n}" }, "url": "{{base_url}}/api/admin/countries/{{country_id}}" } },
+            { "name": "Delete Country", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/countries/{{country_id}}" } }
+          ]
+        },
+        {
+          "name": "Airlines",
+          "item": [
+            { "name": "List Airlines", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airlines?q=&sort=airline_name&order=asc&per_page=20" } },
+            { "name": "Get Airline", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airlines/{{airline_id}}" } },
+            { "name": "Create Airline", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airline_code\": \"GA\",\n  \"airline_name\": \"Garuda Indonesia\"\n}" }, "url": "{{base_url}}/api/admin/airlines" } },
+            { "name": "Update Airline", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airline_name\": \"Garuda Indonesia (Updated)\",\n  \"airline_code\": \"GA\"\n}" }, "url": "{{base_url}}/api/admin/airlines/{{airline_id}}" } },
+            { "name": "Delete Airline", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airlines/{{airline_id}}" } }
+          ]
+        },
+        {
+          "name": "Airports",
+          "item": [
+            { "name": "List Airports", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports?q=&country=&sort=airport_name&order=asc&per_page=20" } },
+            { "name": "Get Airport", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } },
+            { "name": "Create Airport", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_code\": \"CGK\",\n  \"airport_name\": \"Soekarno-Hatta International Airport\",\n  \"city\": \"Tangerang\",\n  \"country_id\": 1\n}" }, "url": "{{base_url}}/api/admin/airports" } },
+            { "name": "Update Airport", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_name\": \"Soekarno-Hatta Intl Airport\",\n  \"city\": \"Tangerang\",\n  \"country_id\": 1,\n  \"airport_code\": \"CGK\"\n}" }, "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } },
+            { "name": "Delete Airport", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } }
+          ]
+        },
+        {
+          "name": "Terminals",
+          "item": [
+            { "name": "List Terminals", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/terminals?q=&sort=terminal_code&order=asc&per_page=20" } },
+            { "name": "Get Terminal", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/terminals/{{terminal_id}}" } },
+            { "name": "Create Terminal", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"terminal_code\": \"T3\",\n  \"terminal_name\": \"Terminal 3\",\n  \"description\": \"International departures\"\n}" }, "url": "{{base_url}}/api/admin/terminals" } },
+            { "name": "Update Terminal", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"terminal_name\": \"Terminal 3 Ultimate\",\n  \"description\": \"International departures and arrivals\",\n  \"terminal_code\": \"T3\"\n}" }, "url": "{{base_url}}/api/admin/terminals/{{terminal_id}}" } },
+            { "name": "Delete Terminal", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/terminals/{{terminal_id}}" } }
+          ]
+        },
+        {
+          "name": "Gates",
+          "item": [
+            { "name": "List Gates", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/gates?q=&terminal=&sort=gate_code&order=asc&per_page=20" } },
+            { "name": "Get Gate", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/gates/{{gate_id}}" } },
+            { "name": "Create Gate", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"gate_code\": \"A1\",\n  \"terminal_id\": 1\n}" }, "url": "{{base_url}}/api/admin/gates" } },
+            { "name": "Update Gate", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"gate_code\": \"A2\",\n  \"terminal_id\": 1\n}" }, "url": "{{base_url}}/api/admin/gates/{{gate_id}}" } },
+            { "name": "Delete Gate", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/gates/{{gate_id}}" } }
+          ]
+        },
+        {
+          "name": "Flight Statuses",
+          "item": [
+            { "name": "List Flight Statuses", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flight-statuses?q=&sort=status_name&order=asc&per_page=20" } },
+            { "name": "Get Flight Status", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flight-statuses/{{flight_status_id}}" } },
+            { "name": "Create Flight Status", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"status_name\": \"On Time\"\n}" }, "url": "{{base_url}}/api/admin/flight-statuses" } },
+            { "name": "Update Flight Status", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"status_name\": \"Delayed\"\n}" }, "url": "{{base_url}}/api/admin/flight-statuses/{{flight_status_id}}" } },
+            { "name": "Delete Flight Status", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/flight-statuses/{{flight_status_id}}" } }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            { "name": "List Users", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/users?q=&sort=created_at&order=asc&per_page=20" } },
+            { "name": "Get User", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/users/{{user_id}}" } },
+            { "name": "Create User", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"secret12345\"\n}" }, "url": "{{base_url}}/api/admin/users" } },
+            { "name": "Update User", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Admin\"\n}" }, "url": "{{base_url}}/api/admin/users/{{user_id}}" } },
+            { "name": "Delete User", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/users/{{user_id}}" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

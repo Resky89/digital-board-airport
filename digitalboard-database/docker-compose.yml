@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: airport-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: airport_db
+      MYSQL_USER: airport_user
+      MYSQL_PASSWORD: user123
+    ports:
+      - "3307:3306"
+    volumes:
+      - airport_mysql_data:/var/lib/mysql
+    networks:
+      - airport_net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: airport-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+    depends_on:
+      - mysql
+    networks:
+      - airport_net
+
+volumes:
+  airport_mysql_data:
+
+networks:
+  airport_net:
+    external: true
+    name: airport_net
