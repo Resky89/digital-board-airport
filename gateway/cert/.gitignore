@@ -1,2 +1,2 @@
-*
-!.gitignore
+server.key
+server.crt
