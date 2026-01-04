@@ -1,65 +1,162 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect, useCallback } from 'react';
+import { publicApi } from '@/app/lib/api';
+import { Flight } from '@/app/types';
+import Clock from '@/app/components/Clock';
+import FlightRow from '@/app/components/FlightRow';
+import LoadingSpinner from '@/app/components/LoadingSpinner';
+
+export default function FlightBoard() {
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'all' | 'departure' | 'arrival'>('all');
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchFlights = useCallback(async () => {
+    try {
+      const params: Record<string, string> = {
+        sort: 'scheduled_time',
+        order: 'asc',
+        per_page: '50',
+      };
+      
+      if (activeTab !== 'all') {
+        params.type = activeTab;
+      }
+
+      const response = await publicApi.getFlights(params);
+      if (response.success) {
+        setFlights(response.data || []);
+      } else {
+        setError('Gagal memuat data penerbangan');
+      }
+    } catch {
+      setError('Terjadi kesalahan saat memuat data');
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchFlights();
+    const interval = setInterval(fetchFlights, 30000);
+    return () => clearInterval(interval);
+  }, [fetchFlights]);
+
+  const filteredFlights = flights.filter(flight => {
+    if (activeTab === 'all') return true;
+    return flight.flight_type === activeTab;
+  });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen gradient-bg">
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="glass-card mx-6 mt-6 p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center animate-glow">
+                <svg className="w-8 h-8 text-black" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Flight Information Display</h1>
+                <p className="text-white/60">Real-time Flight Status Updates</p>
+              </div>
+            </div>
+            <Clock />
+          </div>
+        </header>
+
+        {/* Tab Navigation */}
+        <div className="mx-6 mt-4">
+          <div className="glass-card inline-flex rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`tab-btn rounded-lg ${activeTab === 'all' ? 'active bg-primary/20' : ''}`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              All Flights
+            </button>
+            <button
+              onClick={() => setActiveTab('departure')}
+              className={`tab-btn rounded-lg flex items-center gap-2 ${activeTab === 'departure' ? 'active bg-primary/20' : ''}`}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
+              </svg>
+              Departures
+            </button>
+            <button
+              onClick={() => setActiveTab('arrival')}
+              className={`tab-btn rounded-lg flex items-center gap-2 ${activeTab === 'arrival' ? 'active bg-primary/20' : ''}`}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2.5 19h19v2h-19v-2zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49s5.43-1.45 14.49-3.88c.79-.22 1.27-1.05 1.15-1.4z" />
+              </svg>
+              Arrivals
+            </button>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Flight Table Header */}
+        <div className="mx-6 mt-6">
+          <div className="glass-card p-4">
+            <div className="grid grid-cols-12 items-center gap-4 text-xs font-semibold uppercase tracking-wider text-primary">
+              <div className="col-span-2">Flight</div>
+              <div className="col-span-2">Origin</div>
+              <div className="col-span-1"></div>
+              <div className="col-span-2">Destination</div>
+              <div className="col-span-2">Time</div>
+              <div className="col-span-1">Terminal</div>
+              <div className="col-span-2 text-right">Status</div>
+            </div>
+          </div>
         </div>
-      </main>
+
+        {/* Flight List */}
+        <div className="mx-6 mt-4 pb-8">
+          {loading ? (
+            <div className="glass-card p-12">
+              <LoadingSpinner size="lg" />
+              <p className="text-center text-white/60 mt-4">Memuat data penerbangan...</p>
+            </div>
+          ) : error ? (
+            <div className="glass-card p-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-danger/20 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <p className="text-white/80 text-lg">{error}</p>
+              <button onClick={fetchFlights} className="btn-primary mt-4">
+                Coba Lagi
+              </button>
+            </div>
+          ) : filteredFlights.length === 0 ? (
+            <div className="glass-card p-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+              </div>
+              <p className="text-white/80 text-lg">Tidak ada penerbangan saat ini</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredFlights.map((flight, index) => (
+                <FlightRow key={flight.id} flight={flight} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer className="p-6 text-center text-white/40 text-sm">
+          <p>Data diperbarui setiap 30 detik • Last update: {new Date().toLocaleTimeString('id-ID')}</p>
+        </footer>
+      </div>
     </div>
   );
 }
