@@ -39,8 +39,8 @@ export default function GatesPage() {
   const fetchTerminals = useCallback(async () => {
     try {
       const response = await adminTerminalsApi.list({ per_page: '100' });
-      if (response.success) {
-        setTerminals(response.data || []);
+      if (response.success && Array.isArray(response.data)) {
+        setTerminals(response.data);
       }
     } catch {
       console.error('Failed to fetch terminals');
@@ -167,7 +167,7 @@ export default function GatesPage() {
               required
             >
               <option value="">Select Terminal</option>
-              {terminals.map((t) => (
+              {Array.isArray(terminals) && terminals.map((t) => (
                 <option key={t.id} value={t.id}>{t.terminal_code} - {t.terminal_name}</option>
               ))}
             </select>

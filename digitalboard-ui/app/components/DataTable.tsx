@@ -26,6 +26,9 @@ export default function DataTable<T extends { id: number }>({
   onDelete,
   emptyMessage = 'No data available',
 }: DataTableProps<T>) {
+  // Pastikan data adalah array
+  const safeData = Array.isArray(data) ? data : [];
+
   if (loading) {
     return (
       <div className="glass-card p-8">
@@ -34,7 +37,7 @@ export default function DataTable<T extends { id: number }>({
     );
   }
 
-  if (data.length === 0) {
+  if (safeData.length === 0) {
     return (
       <div className="glass-card p-12 text-center">
         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
@@ -60,7 +63,7 @@ export default function DataTable<T extends { id: number }>({
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
+            {safeData.map((item, index) => (
               <tr key={item.id} className="animate-slide-in" style={{ animationDelay: `${index * 30}ms` }}>
                 {columns.map((col) => (
                   <td key={col.key}>

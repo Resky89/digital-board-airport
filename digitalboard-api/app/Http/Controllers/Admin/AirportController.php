@@ -19,20 +19,39 @@ class AirportController extends Controller
 
     public function index(Request $request)
     {
-        [$sort, $order] = $this->sortParams($request, 'airport_name', ['airport_name', 'airport_code', 'city', 'updated_at']);
+        [$sort, $order] = $this->sortParams($request, 'airport_name', ['airport_name', 'airport_code', 'updated_at']);
         $perPage = $this->perPage($request);
         $q = $request->get('q');
         $country = $request->get('country');
+        $city = $request->get('city');
 
         $items = Airport::query()
-            ->when($q, fn($qry) => $this->applySearch($qry, $q, ['airport_name', 'airport_code', 'city']))
+            ->with(['city.country'])
+            ->when($q, function ($qry, $value) {
+                $qry->where(function ($query) use ($value) {
+                    $query->where('airport_name', 'like', "%{$value}%")
+                        ->orWhere('airport_code', 'like', "%{$value}%")
+                        ->orWhereHas('city', function ($cq) use ($value) {
+                            $cq->where('city_name', 'like', "%{$value}%");
+                        });
+                });
+            })
             ->when($country, function ($qry, $value) {
-                if (is_numeric($value)) {
-                    $qry->where('country_id', (int) $value);
-                } else {
-                    $qry->whereHas('country', function ($cq) use ($value) {
+                $qry->whereHas('city.country', function ($cq) use ($value) {
+                    if (is_numeric($value)) {
+                        $cq->where('country_id', (int) $value);
+                    } else {
                         $cq->where('country_code', $value)
                            ->orWhere('country_name', 'like', "%{$value}%");
+                    }
+                });
+            })
+            ->when($city, function ($qry, $value) {
+                if (is_numeric($value)) {
+                    $qry->where('city_id', (int) $value);
+                } else {
+                    $qry->whereHas('city', function ($cq) use ($value) {
+                        $cq->where('city_name', 'like', "%{$value}%");
                     });
                 }
             })
@@ -54,6 +73,7 @@ class AirportController extends Controller
 
     public function show(Airport $airport)
     {
+        $airport->load('city.country');
         return $this->success(new AirportResource($airport));
     }
 

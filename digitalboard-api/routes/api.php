@@ -11,6 +11,7 @@ Route::prefix('admin')->group(function () {
         require __DIR__.'/api/admin/auth_protected.php';
         require __DIR__.'/api/admin/flights.php';
         require __DIR__.'/api/admin/countries.php';
+        require __DIR__.'/api/admin/cities.php';
         require __DIR__.'/api/admin/airlines.php';
         require __DIR__.'/api/admin/airports.php';
         require __DIR__.'/api/admin/terminals.php';

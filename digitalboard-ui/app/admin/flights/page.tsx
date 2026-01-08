@@ -57,11 +57,11 @@ export default function FlightsPage() {
         adminGatesApi.list({ per_page: '100' }),
         adminFlightStatusesApi.list({ per_page: '100' }),
       ]);
-      setAirlines(airlinesRes.data || []);
-      setAirports(airportsRes.data || []);
-      setTerminals(terminalsRes.data || []);
-      setGates(gatesRes.data || []);
-      setStatuses(statusesRes.data || []);
+      setAirlines(Array.isArray(airlinesRes.data) ? airlinesRes.data : []);
+      setAirports(Array.isArray(airportsRes.data) ? airportsRes.data : []);
+      setTerminals(Array.isArray(terminalsRes.data) ? terminalsRes.data : []);
+      setGates(Array.isArray(gatesRes.data) ? gatesRes.data : []);
+      setStatuses(Array.isArray(statusesRes.data) ? statusesRes.data : []);
     } catch {
       console.error('Failed to fetch related data');
     }

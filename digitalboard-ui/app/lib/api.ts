@@ -81,6 +81,31 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   return response;
 };
 
+// Helper untuk menormalisasi response list API
+// Backend mengembalikan { data: { items: [...] } } atau { data: [...] }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const normalizeListResponse = (json: Record<string, any>): { data: any[]; success: boolean; meta?: any } => {
+
+  let items: any[] = [];
+  
+  if (json.data && json.data.items && Array.isArray(json.data.items)) {
+    // Struktur: { data: { items: [...] } }
+    items = json.data.items;
+  } else if (json.items && Array.isArray(json.items)) {
+    // Struktur: { items: [...] }
+    items = json.items;
+  } else if (Array.isArray(json.data)) {
+    // Struktur: { data: [...] }
+    items = json.data;
+  }
+  
+  return {
+    ...json,
+    data: items,
+    success: json.success !== false, 
+  };
+};
+
 // Public API
 export const publicApi = {
   getFlights: async (params?: Record<string, string>) => {
@@ -140,7 +165,7 @@ export const adminFlightsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/flights${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -177,7 +202,7 @@ export const adminCountriesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/countries${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -214,7 +239,7 @@ export const adminAirlinesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/airlines${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -251,7 +276,7 @@ export const adminAirportsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/airports${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -288,7 +313,7 @@ export const adminTerminalsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/terminals${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -325,7 +350,7 @@ export const adminGatesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/gates${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -362,7 +387,7 @@ export const adminFlightStatusesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/flight-statuses${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {
@@ -399,7 +424,7 @@ export const adminUsersApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/users${queryString}`);
-    return response.json();
+    return normalizeListResponse(await response.json());
   },
 
   get: async (id: number) => {

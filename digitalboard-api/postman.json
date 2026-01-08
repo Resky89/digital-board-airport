@@ -16,7 +16,8 @@
     { "key": "terminal_id", "value": "", "type": "string" },
     { "key": "gate_id", "value": "", "type": "string" },
     { "key": "flight_status_id", "value": "", "type": "string" },
-    { "key": "user_id", "value": "", "type": "string" }
+    { "key": "user_id", "value": "", "type": "string" },
+    { "key": "city_id", "value": "", "type": "string" }
   ],
   "item": [
     {
@@ -171,6 +172,16 @@
             { "name": "Update Country", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"country_name\": \"Republic of Indonesia\",\n  \"country_code\": \"IDN\"\n}" }, "url": "{{base_url}}/api/admin/countries/{{country_id}}" } },
             { "name": "Delete Country", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/countries/{{country_id}}" } }
           ]
+},
+        {
+          "name": "Cities",
+          "item": [
+            { "name": "List Cities", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/cities?q=&country=&sort=city_name&order=asc&per_page=20" } },
+            { "name": "Get City", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/cities/{{city_id}}" } },
+            { "name": "Create City", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"city_code\": \"JKT\",\n  \"city_name\": \"Jakarta\",\n  \"country_id\": 1\n}" }, "url": "{{base_url}}/api/admin/cities" } },
+            { "name": "Update City", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"city_name\": \"Jakarta Capital\",\n  \"city_code\": \"JKT\",\n  \"country_id\": 1\n}" }, "url": "{{base_url}}/api/admin/cities/{{city_id}}" } },
+            { "name": "Delete City", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/cities/{{city_id}}" } }
+          ]
         },
         {
           "name": "Airlines",
@@ -187,8 +198,8 @@
           "item": [
             { "name": "List Airports", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports?q=&country=&sort=airport_name&order=asc&per_page=20" } },
             { "name": "Get Airport", "request": { "method": "GET", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } },
-            { "name": "Create Airport", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_code\": \"CGK\",\n  \"airport_name\": \"Soekarno-Hatta International Airport\",\n  \"city\": \"Tangerang\",\n  \"country_id\": 1\n}" }, "url": "{{base_url}}/api/admin/airports" } },
-            { "name": "Update Airport", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_name\": \"Soekarno-Hatta Intl Airport\",\n  \"city\": \"Tangerang\",\n  \"country_id\": 1,\n  \"airport_code\": \"CGK\"\n}" }, "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } },
+            { "name": "Create Airport", "request": { "method": "POST", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_code\": \"CGK\",\n  \"airport_name\": \"Soekarno-Hatta International Airport\",\n  \"city_id\": 1\n}" }, "url": "{{base_url}}/api/admin/airports" } },
+            { "name": "Update Airport", "request": { "method": "PUT", "header": [ { "key": "Accept", "value": "application/json" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"airport_name\": \"Soekarno-Hatta Intl Airport\",\n  \"city_id\": 1,\n  \"airport_code\": \"CGK\"\n}" }, "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } },
             { "name": "Delete Airport", "request": { "method": "DELETE", "header": [ { "key": "Accept", "value": "application/json" } ], "url": "{{base_url}}/api/admin/airports/{{airport_id}}" } }
           ]
         },

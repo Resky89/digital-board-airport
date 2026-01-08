@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Builder;
 
 class Country extends Model
@@ -15,9 +16,21 @@ class Country extends Model
         'country_name',
     ];
 
-    public function airports(): HasMany
+    public function cities(): HasMany
     {
-        return $this->hasMany(Airport::class, 'country_id', 'country_id');
+        return $this->hasMany(City::class, 'country_id', 'country_id');
+    }
+
+    public function airports(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Airport::class,
+            City::class,
+            'country_id',  // Foreign key on cities table
+            'city_id',     // Foreign key on airports table
+            'country_id',  // Local key on countries table
+            'city_id'      // Local key on cities table
+        );
     }
 
     public function getRouteKeyName(): string

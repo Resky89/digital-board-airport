@@ -41,8 +41,8 @@ export default function AirportsPage() {
   const fetchCountries = useCallback(async () => {
     try {
       const response = await adminCountriesApi.list({ per_page: '100' });
-      if (response.success) {
-        setCountries(response.data || []);
+      if (response.success && Array.isArray(response.data)) {
+        setCountries(response.data);
       }
     } catch {
       console.error('Failed to fetch countries');
@@ -197,7 +197,7 @@ export default function AirportsPage() {
               required
             >
               <option value="">Select Country</option>
-              {countries.map((c) => (
+              {Array.isArray(countries) && countries.map((c) => (
                 <option key={c.id} value={c.id}>{c.country_name}</option>
               ))}
             </select>

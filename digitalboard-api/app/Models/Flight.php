@@ -73,8 +73,8 @@ class Flight extends Model
     {
         return $query->with([
             'airline',
-            'originAirport.country',
-            'destinationAirport.country',
+            'originAirport.city.country',
+            'destinationAirport.city.country',
             'terminal',
             'gate',
             'status',

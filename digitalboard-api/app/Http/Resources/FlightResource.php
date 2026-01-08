@@ -25,22 +25,40 @@ class FlightResource extends JsonResource
             }),
 
             'origin_airport' => $this->whenLoaded('originAirport', function () {
+                $isDomestic = false;
+                if ($this->destinationAirport && $this->originAirport->city && $this->destinationAirport->city) {
+                     $isDomestic = $this->originAirport->city->country_id === $this->destinationAirport->city->country_id;
+                }
+                
                 return [
-                    'airport_id' => $this->originAirport?->airport_id,
-                    'airport_code' => $this->originAirport?->airport_code,
-                    'airport_name' => $this->originAirport?->airport_name,
-                    'city' => $this->originAirport?->city,
-                    'country' => $this->originAirport?->country?->country_code,
+                    'airport_id' => $this->originAirport->airport_id,
+                    'airport_code' => $this->originAirport->airport_code,
+                    'airport_name' => $this->originAirport->airport_name,
+                    'city' => $this->originAirport->city, // Updated structure in AirportResource
+                    'country' => $this->originAirport->city?->country?->country_code,
+                    // Dynamic location code logic
+                    'location_code' => $isDomestic 
+                        ? $this->originAirport->city?->city_code 
+                        : $this->originAirport->city?->country?->country_code,
                 ];
             }),
 
             'destination_airport' => $this->whenLoaded('destinationAirport', function () {
+                 $isDomestic = false;
+                 if ($this->originAirport && $this->destinationAirport->city && $this->originAirport->city) {
+                      $isDomestic = $this->destinationAirport->city->country_id === $this->originAirport->city->country_id;
+                 }
+
                 return [
-                    'airport_id' => $this->destinationAirport?->airport_id,
-                    'airport_code' => $this->destinationAirport?->airport_code,
-                    'airport_name' => $this->destinationAirport?->airport_name,
-                    'city' => $this->destinationAirport?->city,
-                    'country' => $this->destinationAirport?->country?->country_code,
+                    'airport_id' => $this->destinationAirport->airport_id,
+                    'airport_code' => $this->destinationAirport->airport_code,
+                    'airport_name' => $this->destinationAirport->airport_name,
+                    'city' => $this->destinationAirport->city,
+                    'country' => $this->destinationAirport->city?->country?->country_code,
+                     // Dynamic location code logic
+                    'location_code' => $isDomestic 
+                        ? $this->destinationAirport->city?->city_code 
+                        : $this->destinationAirport->city?->country?->country_code,
                 ];
             }),
 
@@ -66,5 +84,26 @@ class FlightResource extends JsonResource
                 ];
             }),
         ];
+    }
+
+        private function getLocationCode($airport, $otherAirport)
+    {
+        if (!$airport || !$airport->city || !$airport->city->country) {
+            return null;
+        }
+
+        // Check if same country
+        $isSameCountry = $otherAirport && 
+                        $otherAirport->city && 
+                        $otherAirport->city->country && 
+                        $otherAirport->city->country->country_id === $airport->city->country->country_id;
+
+        if ($isSameCountry) {
+            // Show city code (e.g. JKT, SUB)
+            return $airport->city->city_code;
+        }
+
+        // Show country code (e.g. ID, SG)
+        return $airport->city->country->country_code;
     }
 }

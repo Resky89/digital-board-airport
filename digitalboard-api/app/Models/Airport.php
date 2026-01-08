@@ -12,13 +12,18 @@ class Airport extends Model
     protected $fillable = [
         'airport_code',
         'airport_name',
-        'city',
-        'country_id',
+        'city_id',
     ];
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'city_id', 'city_id');
+    }
 
     public function country(): BelongsTo
     {
-        return $this->belongsTo(Country::class, 'country_id', 'country_id');
+        // Akses country melalui city
+        return $this->city->country();
     }
 
     public function getRouteKeyName(): string

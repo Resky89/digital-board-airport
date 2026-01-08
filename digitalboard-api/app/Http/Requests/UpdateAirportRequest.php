@@ -23,8 +23,7 @@ class UpdateAirportRequest extends FormRequest
                 Rule::unique('airports', 'airport_code')->ignore($ignoreId, 'airport_id'),
             ],
             'airport_name' => ['sometimes', 'string', 'max:255'],
-            'city' => ['sometimes', 'string', 'max:255'],
-            'country_id' => ['sometimes', 'integer', 'exists:countries,country_id'],
+            'city_id' => ['sometimes', 'integer', 'exists:cities,city_id'],
         ];
     }
 }
