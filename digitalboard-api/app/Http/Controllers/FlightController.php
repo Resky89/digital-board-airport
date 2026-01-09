@@ -37,7 +37,7 @@ class FlightController extends Controller
 
     public function show(Flight $flight)
     {
-        $flight->loadMissing(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
+        $flight->loadMissing(['airline', 'originAirport.city.country', 'destinationAirport.city.country', 'terminal', 'gate', 'status']);
         return $this->success(new FlightResource($flight));
     }
 }

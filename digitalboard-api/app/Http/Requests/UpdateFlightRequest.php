@@ -11,10 +11,9 @@ class UpdateFlightRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
+public function rules(): array
     {
         return [
-            'flight_code' => ['nullable', 'string', 'max:20', 'unique:flights,flight_code,' . request()->route('flight')],
             'airline_id' => ['sometimes', 'integer', 'exists:airlines,airline_id'],
             'origin_airport_id' => ['sometimes', 'integer', 'exists:airports,airport_id'],
             'destination_airport_id' => ['sometimes', 'integer', 'exists:airports,airport_id'],

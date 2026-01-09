@@ -45,20 +45,18 @@ public function store(StoreFlightRequest $request)
         $data = $request->validated();
         $data['created_by'] = auth()->id();
         
-// Auto-generate flight code if not provided
-        if (empty($data['flight_code'])) {
-            $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id'], $id);
-        }
+        // Auto-generate flight code based on airline code
+        $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id']);
  
         $flight = Flight::create($data);
-        $flight->load(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
+        $flight->load(['airline', 'originAirport.city.country', 'destinationAirport.city.country', 'terminal', 'gate', 'status']);
  
         return $this->success(new FlightResource($flight), 'Created', Response::HTTP_CREATED);
     }
 
 public function show($id)
     {
-        $flight = Flight::with(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status'])->findOrFail($id);
+        $flight = Flight::with(['airline', 'originAirport.city.country', 'destinationAirport.city.country', 'terminal', 'gate', 'status'])->findOrFail($id);
         return $this->success(new FlightResource($flight));
     }
 
@@ -67,14 +65,18 @@ public function update(UpdateFlightRequest $request, $id)
         $data = $request->validated();
         $data['created_by'] = auth()->id();
         
-        // Auto-generate flight code if empty or null
-        if (empty($data['flight_code'])) {
-            $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id'], $id);
-        }
- 
         $flight = Flight::findOrFail($id);
+        
+        // Only regenerate flight code if airline_id is changed
+        if (isset($data['airline_id']) && $data['airline_id'] !== $flight->airline_id) {
+            $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id'], $id);
+        } else {
+            // Keep existing flight code
+            $data['flight_code'] = $flight->flight_code;
+        }
+        
         $flight->update($data);
-        $flight->refresh()->load(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
+        $flight->refresh()->load(['airline', 'originAirport.city.country', 'destinationAirport.city.country', 'terminal', 'gate', 'status']);
         return $this->success(new FlightResource($flight), 'Updated');
     }
 

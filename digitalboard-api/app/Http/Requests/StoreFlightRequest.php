@@ -11,10 +11,9 @@ class StoreFlightRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
+public function rules(): array
     {
         return [
-            'flight_code' => ['nullable', 'string', 'max:20', 'unique:flights,flight_code'],
             'airline_id' => ['required', 'integer', 'exists:airlines,airline_id'],
             'origin_airport_id' => ['required', 'integer', 'exists:airports,airport_id'],
             'destination_airport_id' => ['required', 'integer', 'exists:airports,airport_id'],
