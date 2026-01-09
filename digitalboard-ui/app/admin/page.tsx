@@ -18,45 +18,65 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        // Try different approaches to get the data
         const [flights, airlines, airports, users] = await Promise.all([
-          adminFlightsApi.list({ per_page: '1' }),
-          adminAirlinesApi.list({ per_page: '1' }),
-          adminAirportsApi.list({ per_page: '1' }),
-          adminUsersApi.list({ per_page: '1' }),
+          adminFlightsApi.list(),
+          adminAirlinesApi.list(),
+          adminAirportsApi.list(),
+          adminUsersApi.list(),
         ]);
+
+        const getCorrectTotal = (response: any) => {
+          // Check for different possible response structures
+          const paginationTotal = response?.data?.pagination?.total;
+          if (typeof paginationTotal === 'number') return paginationTotal;
+          if (typeof response?.total === 'number') return response.total;
+          if (typeof response?.meta?.total === 'number') return response.meta.total;
+          if (typeof response?.data?.pagination?.total === 'number') return response.data.pagination.total;
+          if (typeof response?.data?.total === 'number') return response.data.total;
+          if (Array.isArray(response?.data?.items)) return response.data.items.length;
+          if (Array.isArray(response?.data)) return response.data.length;
+          if (Array.isArray(response)) return response.length;
+          return 0;
+        };
+
+        const flightCount = getCorrectTotal(flights);
+        const airlineCount = getCorrectTotal(airlines);
+        const airportCount = getCorrectTotal(airports);
+        const userCount = getCorrectTotal(users);
 
         setStats([
           {
             title: 'Total Flights',
-            value: flights.meta?.total || 0,
+            value: flightCount,
             icon: 'M5 12h14M12 5l7 7-7 7',
             color: 'text-primary',
             bgColor: 'bg-primary/20',
           },
           {
             title: 'Airlines',
-            value: airlines.meta?.total || 0,
+            value: airlineCount,
             icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5',
             color: 'text-accent',
             bgColor: 'bg-accent/20',
           },
           {
             title: 'Airports',
-            value: airports.meta?.total || 0,
+            value: airportCount,
             icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z',
             color: 'text-success',
             bgColor: 'bg-success/20',
           },
           {
             title: 'Users',
-            value: users.meta?.total || 0,
+            value: userCount,
             icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197',
             color: 'text-warning',
             bgColor: 'bg-warning/20',
           },
         ]);
-      } catch {
-        console.error('Failed to fetch stats');
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
       } finally {
         setLoading(false);
       }

@@ -101,12 +101,13 @@ const fetchStatuses = useCallback(async () => {
 
   const getStatusColor = (name: string) => {
     const status = name.toLowerCase();
-    if (status.includes('on time') || status.includes('scheduled')) return 'bg-success/20 text-success';
-    if (status.includes('delay')) return 'bg-warning/20 text-warning';
-    if (status.includes('cancel')) return 'bg-danger/20 text-danger';
-    if (status.includes('boarding')) return 'bg-primary/20 text-primary';
-    if (status.includes('depart')) return 'bg-purple-500/20 text-purple-400';
-    if (status.includes('arriv') || status.includes('landed')) return 'bg-cyan-500/20 text-cyan-400';
+    if (status.includes('on time') || status.includes('scheduled')) return 'bg-emerald-500/20 text-emerald-300';
+    if (status.includes('scheduled')) return 'bg-indigo-500/20 text-indigo-300';
+    if (status.includes('delayed')) return 'bg-amber-500/20 text-amber-300';
+    if (status.includes('cancelled')) return 'bg-rose-500/20 text-rose-300';
+    if (status.includes('boarding')) return 'bg-sky-500/20 text-sky-300';
+    if (status.includes('departed')) return 'bg-violet-500/20 text-violet-300';
+    if (status.includes('arrived') || status.includes('landed')) return 'bg-cyan-500/20 text-cyan-300';
     return 'bg-white/10 text-white';
   };
 
@@ -115,9 +116,7 @@ const fetchStatuses = useCallback(async () => {
       <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(s.status_name)}`}>
         {s.status_name}
       </span>
-    )},
-    { key: 'created_at', label: 'Created', render: (s: FlightStatus) => new Date(s.created_at).toLocaleDateString('id-ID') },
-  ];
+    )}];
 
   return (
     <div>

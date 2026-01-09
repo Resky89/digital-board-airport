@@ -100,10 +100,9 @@ const fetchAirlines = useCallback(async () => {
     }
   };
 
-  const columns = [
+const columns = [
     { key: 'airline_code', label: 'Code' },
     { key: 'airline_name', label: 'Name' },
-    { key: 'created_at', label: 'Created', render: (a: Airline) => new Date(a.created_at).toLocaleDateString('id-ID') },
   ];
 
   return (

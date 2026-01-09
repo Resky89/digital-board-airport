@@ -18,15 +18,15 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
   };
 
   const getStatusClass = (statusName?: string) => {
-    const status = statusName?.toLowerCase() || '';
-    if (status.includes('on time')) return 'status-on-time';
-    if (status.includes('scheduled')) return 'status-scheduled';
-    if (status.includes('delay')) return 'status-delayed';
-    if (status.includes('cancel')) return 'status-cancelled';
-    if (status.includes('boarding')) return 'status-boarding';
-    if (status.includes('depart')) return 'status-departed';
-    if (status.includes('arriv') || status.includes('landed')) return 'status-arrived';
-    return 'status-scheduled';
+    const status = (statusName || '').toLowerCase();
+    if (status.includes('on time')) return 'bg-emerald-500/20 text-emerald-300';
+    if (status.includes('scheduled')) return 'bg-indigo-500/20 text-indigo-300';
+    if (status.includes('delayed')) return 'bg-amber-500/20 text-amber-300';
+    if (status.includes('cancelled')) return 'bg-rose-500/20 text-rose-300';
+    if (status.includes('boarding')) return 'bg-sky-500/20 text-sky-300';
+    if (status.includes('departed')) return 'bg-violet-500/20 text-violet-300';
+    if (status.includes('arrived') || status.includes('landed')) return 'bg-cyan-500/20 text-cyan-300';
+    return 'bg-white/10 text-white';
   };
 
   return (
@@ -96,7 +96,7 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
 
       {/* Status */}
       <div className="col-span-2 flex justify-end">
-        <span className={`px-4 py-2 rounded-full text-sm font-semibold text-white ${getStatusClass(flight.status?.status_name)}`}>
+        <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusClass(flight.status?.status_name)}`}>
           {flight.status?.status_name || 'Unknown'}
         </span>
       </div>
