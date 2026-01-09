@@ -46,15 +46,17 @@ class FlightStatusController extends Controller
         return $this->success(new FlightStatusResource($flight_status));
     }
 
-    public function update(UpdateFlightStatusRequest $request, FlightStatus $flight_status)
+    public function update(UpdateFlightStatusRequest $request, $id)
     {
+        $flight_status = FlightStatus::findOrFail($id);
         $flight_status->update($request->validated());
         return $this->success(new FlightStatusResource($flight_status->refresh()), 'Updated');
     }
 
-    public function destroy(FlightStatus $flight_status)
+    public function destroy($id)
     {
         try {
+            $flight_status = FlightStatus::findOrFail($id);
             $flight_status->delete();
         } catch (QueryException $e) {
             return $this->error('Unable to delete flight status', 409);

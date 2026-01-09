@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { adminFlightsApi, adminAirlinesApi, adminAirportsApi, adminTerminalsApi, adminGatesApi, adminFlightStatusesApi } from '@/app/lib/api';
 import { Flight, Airline, Airport, Terminal, Gate, FlightStatus, FlightFormData } from '@/app/types';
 import DataTable from '@/app/components/DataTable';
+import LazySelect from '@/app/components/LazySelect';
 import Modal from '@/app/components/Modal';
 import Toast from '@/app/components/Toast';
 
@@ -72,20 +73,20 @@ setAirlines(airlinesRes.data?.items || []);
     fetchRelatedData();
   }, [fetchFlights, fetchRelatedData]);
 
-  const handleOpenModal = (flight?: Flight) => {
+const handleOpenModal = (flight?: Flight) => {
     if (flight) {
       setEditingFlight(flight);
       setFormData({
-        flight_code: flight.flight_code,
-        airline_id: flight.airline_id,
-        origin_airport_id: flight.origin_airport_id,
-        destination_airport_id: flight.destination_airport_id,
-        gate_id: flight.gate_id,
-        terminal_id: flight.terminal_id,
-        status_id: flight.status_id,
+        flight_code: flight.flight_code || '',
+        airline_id: String(flight.airline_id ?? ''),
+        origin_airport_id: String(flight.origin_airport_id ?? ''),
+        destination_airport_id: String(flight.destination_airport_id ?? ''),
+        gate_id: String(flight.gate_id ?? ''),
+        terminal_id: String(flight.terminal_id ?? ''),
+        status_id: String(flight.status_id ?? ''),
         flight_type: flight.flight_type,
-        scheduled_time: flight.scheduled_time.slice(0, 16),
-        actual_time: flight.actual_time?.slice(0, 16) || '',
+        scheduled_time: flight.scheduled_time ? flight.scheduled_time.slice(0, 16) : '',
+        actual_time: flight.actual_time ? flight.actual_time.slice(0, 16) : '',
       });
     } else {
       setEditingFlight(null);
@@ -223,76 +224,61 @@ try {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Airline</label>
-              <select
-                value={formData.airline_id}
-                onChange={(e) => setFormData({ ...formData, airline_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-                <option value="">Select Airline</option>
-{Array.isArray(airlines) && airlines.map((a) => (
-                  <option key={a.id} value={a.id}>{a.airline_name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Origin Airport</label>
-              <select
-                value={formData.origin_airport_id}
-                onChange={(e) => setFormData({ ...formData, origin_airport_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-<option value="">Select Origin</option>
-                {Array.isArray(airports) && airports.map((a) => (
-                  <option key={a.id} value={a.id}>{a.airport_code} - {a.airport_name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Destination Airport</label>
-              <select
-                value={formData.destination_airport_id}
-                onChange={(e) => setFormData({ ...formData, destination_airport_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-<option value="">Select Destination</option>
-                {Array.isArray(airports) && airports.map((a) => (
-                  <option key={a.id} value={a.id}>{a.airport_code} - {a.airport_name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Terminal</label>
-              <select
-                value={formData.terminal_id}
-                onChange={(e) => setFormData({ ...formData, terminal_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-<option value="">Select Terminal</option>
-                {Array.isArray(terminals) && terminals.map((t) => (
-                  <option key={t.id} value={t.id}>{t.terminal_code} - {t.terminal_name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Gate</label>
-              <select
-                value={formData.gate_id}
-                onChange={(e) => setFormData({ ...formData, gate_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-<option value="">Select Gate</option>
-                {Array.isArray(gates) && gates.map((g) => (
-                  <option key={g.id} value={g.id}>{g.gate_code}</option>
-                ))}
-              </select>
-            </div>
+<LazySelect<Airline>
+              label="Airline"
+              value={formData.airline_id}
+              onChange={(airlineId) => setFormData({ ...formData, airline_id: airlineId.toString() })}
+              fetchFunction={adminAirlinesApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(airline) => `${airline.airline_code} - ${airline.airline_name}`}
+              getOptionValue={(airline) => airline.id}
+              placeholder="Select Airline"
+              required
+            />
+<LazySelect<Airport>
+              label="Origin Airport"
+              value={formData.origin_airport_id}
+              onChange={(airportId) => setFormData({ ...formData, origin_airport_id: airportId.toString() })}
+              fetchFunction={adminAirportsApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(airport) => `${airport.airport_code} - ${airport.airport_name}`}
+              getOptionValue={(airport) => airport.id}
+              placeholder="Select Origin"
+              required
+            />
+<LazySelect<Airport>
+              label="Destination Airport"
+              value={formData.destination_airport_id}
+              onChange={(airportId) => setFormData({ ...formData, destination_airport_id: airportId.toString() })}
+              fetchFunction={adminAirportsApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(airport) => `${airport.airport_code} - ${airport.airport_name}`}
+              getOptionValue={(airport) => airport.id}
+              placeholder="Select Destination"
+              required
+            />
+<LazySelect<Terminal>
+              label="Terminal"
+              value={formData.terminal_id}
+              onChange={(terminalId) => setFormData({ ...formData, terminal_id: terminalId.toString() })}
+              fetchFunction={adminTerminalsApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(terminal) => `${terminal.terminal_code} - ${terminal.terminal_name}`}
+              getOptionValue={(terminal) => terminal.id}
+              placeholder="Select Terminal"
+              required
+            />
+<LazySelect<Gate>
+              label="Gate"
+              value={formData.gate_id}
+              onChange={(gateId) => setFormData({ ...formData, gate_id: gateId.toString() })}
+              fetchFunction={adminGatesApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(gate) => gate.gate_code}
+              getOptionValue={(gate) => gate.id}
+              placeholder="Select Gate"
+              required
+            />
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">Flight Type</label>
               <select
@@ -305,20 +291,17 @@ try {
                 <option value="arrival">Arrival</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Status</label>
-              <select
-                value={formData.status_id}
-                onChange={(e) => setFormData({ ...formData, status_id: Number(e.target.value) || '' })}
-                className="input-field"
-                required
-              >
-<option value="">Select Status</option>
-                {Array.isArray(statuses) && statuses.map((s) => (
-                  <option key={s.id} value={s.id}>{s.status_name}</option>
-                ))}
-              </select>
-            </div>
+<LazySelect<FlightStatus>
+              label="Status"
+              value={formData.status_id}
+              onChange={(statusId) => setFormData({ ...formData, status_id: statusId.toString() })}
+              fetchFunction={adminFlightStatusesApi.list}
+              fetchParams={{ per_page: '100' }}
+              getOptionLabel={(status) => status.status_name}
+              getOptionValue={(status) => status.id}
+              placeholder="Select Status"
+              required
+            />
             <div>
               <label className="block text-sm font-medium text-white/80 mb-2">Scheduled Time</label>
               <input

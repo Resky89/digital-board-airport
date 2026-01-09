@@ -51,22 +51,27 @@ class FlightController extends Controller
         return $this->success(new FlightResource($flight), 'Created', Response::HTTP_CREATED);
     }
 
-    public function show(Flight $flight)
+public function show($id)
     {
-        $flight->loadMissing(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
+        $flight = Flight::with(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status'])->findOrFail($id);
         return $this->success(new FlightResource($flight));
     }
 
-    public function update(UpdateFlightRequest $request, Flight $flight)
+public function update(UpdateFlightRequest $request, $id)
     {
-        $flight->update($request->validated());
+        $data = $request->validated();
+        $data['created_by'] = auth()->id();
+
+        $flight = Flight::findOrFail($id);
+        $flight->update($data);
         $flight->refresh()->load(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
         return $this->success(new FlightResource($flight), 'Updated');
     }
 
-    public function destroy(Flight $flight)
+    public function destroy($id)
     {
         try {
+            $flight = Flight::findOrFail($id);
             $flight->delete();
         } catch (QueryException $e) {
             return $this->error('Unable to delete flight', 409);

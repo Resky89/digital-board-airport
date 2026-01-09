@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { adminCitiesApi, adminCountriesApi } from '@/app/lib/api';
 import { City, Country, CityFormData } from '@/app/types';
 import DataTable from '@/app/components/DataTable';
+import LazySelect from '@/app/components/LazySelect';
 import Modal from '@/app/components/Modal';
 import Toast from '@/app/components/Toast';
 
@@ -59,7 +60,7 @@ export default function CitiesPage() {
       setFormData({
         city_code: city.city_code,
         city_name: city.city_name,
-        country_id: city.country_id,
+        country_id: city.country_id.toString(),
       });
     } else {
       setEditingCity(null);
@@ -174,20 +175,17 @@ export default function CitiesPage() {
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">Country</label>
-            <select
-              value={formData.country_id}
-              onChange={(e) => setFormData({ ...formData, country_id: Number(e.target.value) || '' })}
-              className="input-field"
-              required
-            >
-              <option value="">Select Country</option>
-              {Array.isArray(countries) && countries.map((c) => (
-                <option key={c.id} value={c.id}>{c.country_name}</option>
-              ))}
-            </select>
-          </div>
+          <LazySelect<Country>
+            label="Country"
+            value={formData.country_id}
+            onChange={(countryId) => setFormData({ ...formData, country_id: countryId.toString() })}
+            fetchFunction={adminCountriesApi.list}
+            fetchParams={{ per_page: '100' }}
+            getOptionLabel={(country) => `${country.country_name} (${country.country_code})`}
+            getOptionValue={(country) => country.id}
+            placeholder="Select Country"
+            required
+          />
           <div className="flex justify-end gap-3 pt-4">
             <button type="button" onClick={handleCloseModal} className="btn-secondary">Cancel</button>
             <button type="submit" disabled={submitting} className="btn-primary">

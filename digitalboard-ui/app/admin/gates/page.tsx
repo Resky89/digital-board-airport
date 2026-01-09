@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { adminGatesApi, adminTerminalsApi } from '@/app/lib/api';
 import { Gate, Terminal, GateFormData } from '@/app/types';
 import DataTable from '@/app/components/DataTable';
+import LazySelect from '@/app/components/LazySelect';
 import Modal from '@/app/components/Modal';
 import Toast from '@/app/components/Toast';
 
@@ -52,10 +53,10 @@ const fetchTerminals = useCallback(async () => {
     fetchTerminals();
   }, [fetchGates, fetchTerminals]);
 
-  const handleOpenModal = (gate?: Gate) => {
+const handleOpenModal = (gate?: Gate) => {
     if (gate) {
       setEditingGate(gate);
-      setFormData({ gate_code: gate.gate_code, terminal_id: gate.terminal_id });
+      setFormData({ gate_code: gate.gate_code, terminal_id: gate.terminal_id.toString() });
     } else {
       setEditingGate(null);
       setFormData(initialFormData);
@@ -158,20 +159,17 @@ const fetchTerminals = useCallback(async () => {
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-white/80 mb-2">Terminal</label>
-            <select
-              value={formData.terminal_id}
-              onChange={(e) => setFormData({ ...formData, terminal_id: Number(e.target.value) || '' })}
-              className="input-field"
-              required
-            >
-              <option value="">Select Terminal</option>
-              {Array.isArray(terminals) && terminals.map((t) => (
-                <option key={t.id} value={t.id}>{t.terminal_code} - {t.terminal_name}</option>
-              ))}
-            </select>
-          </div>
+<LazySelect<Terminal>
+            label="Terminal"
+            value={formData.terminal_id}
+            onChange={(terminalId) => setFormData({ ...formData, terminal_id: terminalId.toString() })}
+            fetchFunction={adminTerminalsApi.list}
+            fetchParams={{ per_page: '100' }}
+            getOptionLabel={(terminal) => `${terminal.terminal_code} - ${terminal.terminal_name}`}
+            getOptionValue={(terminal) => terminal.id}
+            placeholder="Select Terminal"
+            required
+          />
           <div className="flex justify-end gap-3 pt-4">
             <button type="button" onClick={handleCloseModal} className="btn-secondary">Cancel</button>
             <button type="submit" disabled={submitting} className="btn-primary">

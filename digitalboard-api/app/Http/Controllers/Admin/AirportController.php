@@ -71,21 +71,24 @@ return $this->success([
         return $this->success(new AirportResource($airport), 'Created', Response::HTTP_CREATED);
     }
 
-    public function show(Airport $airport)
+    public function show($id)
     {
-        $airport->load('city.country');
+        $airport = Airport::with('city.country')->findOrFail($id);
         return $this->success(new AirportResource($airport));
     }
 
-    public function update(UpdateAirportRequest $request, Airport $airport)
+    public function update(UpdateAirportRequest $request, $id)
     {
+        $airport = Airport::findOrFail($id);
         $airport->update($request->validated());
-        return $this->success(new AirportResource($airport->refresh()), 'Updated');
+        $airport->load('city.country');
+        return $this->success(new AirportResource($airport), 'Updated');
     }
 
-    public function destroy(Airport $airport)
+    public function destroy($id)
     {
         try {
+            $airport = Airport::findOrFail($id);
             $airport->delete();
         } catch (QueryException $e) {
             return $this->error('Unable to delete airport', 409);

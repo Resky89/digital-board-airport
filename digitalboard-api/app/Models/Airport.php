@@ -22,8 +22,13 @@ class Airport extends Model
 
 
 
-    public function getRouteKeyName(): string
+public function getRouteKeyName(): string
     {
         return 'airport_id';
+    }
+
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->where('airport_id', $value)->firstOrFail();
     }
 }

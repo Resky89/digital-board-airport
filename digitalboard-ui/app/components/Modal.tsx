@@ -59,15 +59,7 @@ export default function Modal({
       document.addEventListener('keydown', handleFocusTrap);
       document.body.style.overflow = 'hidden';
       
-      // Focus on first focusable element when modal opens
-      setTimeout(() => {
-        if (modalRef.current) {
-          const firstFocusable = modalRef.current.querySelector(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          ) as HTMLElement;
-          if (firstFocusable) firstFocusable.focus();
-        }
-      }, 100);
+      // Remove automatic focus - let user click on input fields manually
     }
 
     return () => {

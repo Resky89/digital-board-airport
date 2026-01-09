@@ -52,20 +52,23 @@ class GateController extends Controller
         return $this->success(new GateResource($gate), 'Created', Response::HTTP_CREATED);
     }
 
-    public function show(Gate $gate)
+    public function show($id)
     {
+        $gate = Gate::findOrFail($id);
         return $this->success(new GateResource($gate));
     }
 
-    public function update(UpdateGateRequest $request, Gate $gate)
+    public function update(UpdateGateRequest $request, $id)
     {
+        $gate = Gate::findOrFail($id);
         $gate->update($request->validated());
         return $this->success(new GateResource($gate->refresh()), 'Updated');
     }
 
-    public function destroy(Gate $gate)
+    public function destroy($id)
     {
         try {
+            $gate = Gate::findOrFail($id);
             $gate->delete();
         } catch (QueryException $e) {
             return $this->error('Unable to delete gate', 409);

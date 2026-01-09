@@ -46,20 +46,23 @@ class AirlineController extends Controller
         return $this->success(new AirlineResource($airline), 'Created', Response::HTTP_CREATED);
     }
 
-    public function show(Airline $airline)
+    public function show($id)
     {
+        $airline = Airline::findOrFail($id);
         return $this->success(new AirlineResource($airline));
     }
 
-    public function update(UpdateAirlineRequest $request, Airline $airline)
+    public function update(UpdateAirlineRequest $request, $id)
     {
+        $airline = Airline::findOrFail($id);
         $airline->update($request->validated());
         return $this->success(new AirlineResource($airline->refresh()), 'Updated');
     }
 
-    public function destroy(Airline $airline)
+    public function destroy($id)
     {
         try {
+            $airline = Airline::findOrFail($id);
             $airline->delete();
         } catch (QueryException $e) {
             return $this->error('Unable to delete airline. It may be referenced by flights.', 409);

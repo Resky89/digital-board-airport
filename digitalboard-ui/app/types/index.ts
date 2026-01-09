@@ -127,12 +127,12 @@ export interface Flight {
 // Form Types
 export interface FlightFormData {
   flight_code: string;
-  airline_id: number | '';
-  origin_airport_id: number | '';
-  destination_airport_id: number | '';
-  gate_id: number | '';
-  terminal_id: number | '';
-  status_id: number | '';
+  airline_id: string;
+  origin_airport_id: string;
+  destination_airport_id: string;
+  gate_id: string;
+  terminal_id: string;
+  status_id: string;
   flight_type: 'departure' | 'arrival';
   scheduled_time: string;
   actual_time: string;
@@ -157,7 +157,7 @@ export interface AirportFormData {
 export interface CityFormData {
   city_code: string;
   city_name: string;
-  country_id: number | '';
+  country_id: string;
 }
 
 export interface TerminalFormData {
@@ -168,7 +168,7 @@ export interface TerminalFormData {
 
 export interface GateFormData {
   gate_code: string;
-  terminal_id: number | '';
+  terminal_id: string;
 }
 
 export interface FlightStatusFormData {

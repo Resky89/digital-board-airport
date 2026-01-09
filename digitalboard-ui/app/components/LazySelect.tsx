@@ -75,6 +75,13 @@ export default function LazySelect<T extends { id: number }>({
     }
   }, [isOpen, refresh]);
 
+// Force refresh when value changes for edit mode
+  useEffect(() => {
+    if (isOpen && value) {
+      refresh();
+    }
+  }, [value, isOpen, refresh]);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     if (element.scrollHeight - element.scrollTop <= element.clientHeight + 50 && hasMore && !loadingMore) {
@@ -82,7 +89,7 @@ export default function LazySelect<T extends { id: number }>({
     }
   };
 
-  const selectedOption = options.find(opt => getOptionValue(opt) === Number(value));
+  const selectedOption = value ? options.find(opt => getOptionValue(opt) === Number(value)) : null;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -92,10 +99,22 @@ export default function LazySelect<T extends { id: number }>({
       </label>
       
       <div
-        className={`relative cursor-pointer ${disabled ? 'opacity-50' : ''}`}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        className={`relative ${disabled ? 'opacity-50' : ''}`}
       >
-        <div className={className}>
+        <div 
+          className={`${className} cursor-pointer`}
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          onKeyDown={(e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && !disabled) {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }
+          }}
+          tabIndex={disabled ? -1 : 0}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+        >
           <span className={selectedOption ? 'text-white' : 'text-white/40'}>
             {selectedOption ? getOptionLabel(selectedOption) : placeholder}
           </span>
@@ -117,7 +136,7 @@ export default function LazySelect<T extends { id: number }>({
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 glass-card border border-white/10 max-h-60 overflow-hidden">
+        <div className="absolute z-50 w-full mt-1 glass-card border border-white/10 max-h-60 overflow-hidden">
           <div className="p-2 border-b border-white/10">
             <input
               type="text"
@@ -126,6 +145,17 @@ export default function LazySelect<T extends { id: number }>({
               placeholder="Search..."
               className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-primary/50 text-sm"
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                } else if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  const firstOption = e.currentTarget.parentElement?.querySelector('[role="option"]') as HTMLElement;
+                  if (firstOption) {
+                    firstOption.focus();
+                  }
+                }
+              }}
               autoFocus
             />
           </div>
@@ -143,16 +173,30 @@ export default function LazySelect<T extends { id: number }>({
                 No options found
               </div>
             ) : (
-              options.map((option) => (
+              options.map((option, index) => (
                 <div
                   key={option.id}
-                  className={`px-3 py-2 cursor-pointer hover:bg-white/10 transition-colors ${
+                  className={`px-3 py-2 cursor-pointer hover:bg-white/10 transition-colors outline-none ${
                     getOptionValue(option) === Number(value) ? 'bg-primary/30' : ''
                   }`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
                   onClick={() => {
                     onChange(getOptionValue(option));
                     setIsOpen(false);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      onChange(getOptionValue(option));
+                      setIsOpen(false);
+                    }
+                  }}
+                  tabIndex={index === 0 ? 0 : -1}
+                  role="option"
+                  aria-selected={getOptionValue(option) === Number(value)}
                 >
                   {getOptionLabel(option)}
                 </div>

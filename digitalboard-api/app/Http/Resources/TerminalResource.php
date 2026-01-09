@@ -7,9 +7,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TerminalResource extends JsonResource
 {
-    public function toArray(Request $request): array
+public function toArray(Request $request): array
     {
         return [
+            'id' => $this->terminal_id, // Frontend expects 'id'
             'terminal_id' => $this->terminal_id,
             'terminal_code' => $this->terminal_code,
             'terminal_name' => $this->terminal_name,
