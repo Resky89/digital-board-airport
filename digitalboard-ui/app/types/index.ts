@@ -126,7 +126,6 @@ export interface Flight {
 
 // Form Types
 export interface FlightFormData {
-  flight_code: string;
   airline_id: string;
   origin_airport_id: string;
   destination_airport_id: string;
@@ -151,7 +150,7 @@ export interface AirlineFormData {
 export interface AirportFormData {
   airport_code: string;
   airport_name: string;
-  city_id: number | '';
+  city_id: string;
 }
 
 export interface CityFormData {

@@ -16,6 +16,7 @@ const initialFormData: AirportFormData = {
 
 export default function AirportsPage() {
   const [airports, setAirports] = useState<Airport[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAirport, setEditingAirport] = useState<Airport | null>(null);
@@ -37,19 +38,29 @@ const fetchAirports = useCallback(async () => {
     }
   }, []);
 
+  const fetchRelatedData = useCallback(async () => {
+    try {
+      const citiesRes = await adminCitiesApi.list({ per_page: '100' });
+      if (citiesRes.success) {
+        setCities(citiesRes.data?.items || []);
+      }
+    } catch {
+      console.error('Failed to fetch related data');
+    }
+  }, []);
 
-
-useEffect(() => {
+  useEffect(() => {
     fetchAirports();
-  }, [fetchAirports]);
+    fetchRelatedData();
+  }, [fetchAirports, fetchRelatedData]);
 
 const handleOpenModal = (airport?: Airport) => {
     if (airport) {
       setEditingAirport(airport);
-      setFormData({
+setFormData({
         airport_code: airport.airport_code,
         airport_name: airport.airport_name,
-        city_id: airport.city_id,
+        city_id: String(airport.city_id ?? ''),
       });
     } else {
       setEditingAirport(null);
@@ -168,9 +179,9 @@ const columns = [
 <LazySelect<City>
             label="City"
             value={formData.city_id}
-            onChange={(cityId) => setFormData({ ...formData, city_id: cityId })}
+            onChange={(cityId) => setFormData({ ...formData, city_id: cityId.toString() })}
             fetchFunction={adminCitiesApi.list}
-            fetchParams={{ per_page: '20' }}
+            fetchParams={{ per_page: '100' }}
             getOptionLabel={(city) => `${city.city_name} (${city.country?.country_name || city.country_id})`}
             getOptionValue={(city) => city.id}
             placeholder="Select City"

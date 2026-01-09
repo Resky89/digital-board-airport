@@ -38,21 +38,21 @@ export default function CitiesPage() {
     }
   }, []);
 
-  const fetchCountries = useCallback(async () => {
+  const fetchRelatedData = useCallback(async () => {
     try {
-      const response = await adminCountriesApi.list({ per_page: '100' });
-      if (response.success) {
-        setCountries(response.data?.items || []);
+      const countriesRes = await adminCountriesApi.list({ per_page: '100' });
+      if (countriesRes.success) {
+        setCountries(countriesRes.data?.items || []);
       }
     } catch {
-      console.error('Failed to fetch countries');
+      console.error('Failed to fetch related data');
     }
   }, []);
 
   useEffect(() => {
     fetchCities();
-    fetchCountries();
-  }, [fetchCities, fetchCountries]);
+    fetchRelatedData();
+  }, [fetchCities, fetchRelatedData]);
 
   const handleOpenModal = (city?: City) => {
     if (city) {
@@ -60,7 +60,7 @@ export default function CitiesPage() {
       setFormData({
         city_code: city.city_code,
         city_name: city.city_name,
-        country_id: city.country_id.toString(),
+        country_id: String(city.country_id ?? ''),
       });
     } else {
       setEditingCity(null);

@@ -9,7 +9,6 @@ import Modal from '@/app/components/Modal';
 import Toast from '@/app/components/Toast';
 
 const initialFormData: FlightFormData = {
-  flight_code: '',
   airline_id: '',
   origin_airport_id: '',
   destination_airport_id: '',
@@ -77,7 +76,6 @@ const handleOpenModal = (flight?: Flight) => {
     if (flight) {
       setEditingFlight(flight);
       setFormData({
-        flight_code: flight.flight_code || '',
         airline_id: String(flight.airline_id ?? ''),
         origin_airport_id: String(flight.origin_airport_id ?? ''),
         destination_airport_id: String(flight.destination_airport_id ?? ''),
@@ -106,8 +104,7 @@ const handleOpenModal = (flight?: Flight) => {
     setSubmitting(true);
 
     try {
-      const payload = {
-        flight_code: formData.flight_code,
+const payload = {
         airline_id: Number(formData.airline_id),
         origin_airport_id: Number(formData.origin_airport_id),
         destination_airport_id: Number(formData.destination_airport_id),
@@ -213,17 +210,6 @@ try {
       <Modal isOpen={modalOpen} onClose={handleCloseModal} title={editingFlight ? 'Edit Flight' : 'Add Flight'} size="lg">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-2">Flight Code</label>
-              <input
-                type="text"
-                value={formData.flight_code}
-                onChange={(e) => setFormData({ ...formData, flight_code: e.target.value })}
-                className="input-field"
-                placeholder="GA123"
-                required
-              />
-            </div>
 <LazySelect<Airline>
               label="Airline"
               value={formData.airline_id}
