@@ -40,14 +40,19 @@ class FlightController extends Controller
         return $this->success($data);
     }
 
-    public function store(StoreFlightRequest $request)
+public function store(StoreFlightRequest $request)
     {
         $data = $request->validated();
         $data['created_by'] = auth()->id();
-
+        
+// Auto-generate flight code if not provided
+        if (empty($data['flight_code'])) {
+            $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id'], $id);
+        }
+ 
         $flight = Flight::create($data);
         $flight->load(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);
-
+ 
         return $this->success(new FlightResource($flight), 'Created', Response::HTTP_CREATED);
     }
 
@@ -61,7 +66,12 @@ public function update(UpdateFlightRequest $request, $id)
     {
         $data = $request->validated();
         $data['created_by'] = auth()->id();
-
+        
+        // Auto-generate flight code if empty or null
+        if (empty($data['flight_code'])) {
+            $data['flight_code'] = Flight::generateUniqueFlightCode($data['airline_id'], $id);
+        }
+ 
         $flight = Flight::findOrFail($id);
         $flight->update($data);
         $flight->refresh()->load(['airline', 'originAirport.country', 'destinationAirport.country', 'terminal', 'gate', 'status']);

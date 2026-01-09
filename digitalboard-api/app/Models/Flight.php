@@ -29,9 +29,61 @@ class Flight extends Model
         'actual_time' => 'datetime',
     ];
 
-    public function getRouteKeyName(): string
+public function getRouteKeyName(): string
     {
         return 'flight_id';
+    }
+
+    /**
+     * Auto-generate flight code based on airline
+     */
+    public static function generateFlightCode($airlineId)
+    {
+        $airline = Airline::find($airlineId);
+        if (!$airline) {
+            return null;
+        }
+        
+        $airlineCode = $airline->airline_code;
+        
+        // Generate random number (3-4 digits)
+        $randomNumber = str_pad(mt_rand(100, 9999), 3, '0', STR_PAD_LEFT);
+        
+        return $airlineCode . $randomNumber;
+    }
+
+    /**
+     * Generate unique flight code
+     */
+    public static function generateUniqueFlightCode($airlineId, $excludeId = null)
+    {
+        $maxAttempts = 10;
+        
+        for ($i = 0; $i < $maxAttempts; $i++) {
+            $flightCode = self::generateFlightCode($airlineId);
+            
+            // Check if code already exists
+            $query = self::where('flight_code', $flightCode);
+            
+            if ($excludeId) {
+                $query->where('flight_id', '!=', $excludeId);
+            }
+            
+            $existing = $query->first();
+            
+            if (!$existing) {
+                return $flightCode;
+            }
+        }
+        
+        // Fallback: generate with timestamp
+        $airline = Airline::find($airlineId);
+        if ($airline) {
+            $timestamp = date('His');
+            return $airline->airline_code . $timestamp;
+        }
+        
+        return null;
     }
 
     public function airline(): BelongsTo
