@@ -72,25 +72,53 @@ setAirlines(airlinesRes.data?.items || []);
     fetchRelatedData();
   }, [fetchFlights, fetchRelatedData]);
 
-const handleOpenModal = (flight?: Flight) => {
+const handleOpenModal = async (flight?: Flight) => {
     if (flight) {
       setEditingFlight(flight);
-      setFormData({
-        airline_id: String(flight.airline_id ?? ''),
-        origin_airport_id: String(flight.origin_airport_id ?? ''),
-        destination_airport_id: String(flight.destination_airport_id ?? ''),
-        gate_id: String(flight.gate_id ?? ''),
-        terminal_id: String(flight.terminal_id ?? ''),
-        status_id: String(flight.status_id ?? ''),
-        flight_type: flight.flight_type,
-        scheduled_time: flight.scheduled_time ? flight.scheduled_time.slice(0, 16) : '',
-        actual_time: flight.actual_time ? flight.actual_time.slice(0, 16) : '',
-      });
+      try {
+        const res = await adminFlightsApi.get((flight as any).id ?? (flight as any).flight_id);
+        const f = res?.data || {};
+        const airlineId = f.airline?.airline_id ?? flight.airline_id ?? '';
+        const originId = f.origin_airport?.airport_id ?? flight.origin_airport_id ?? '';
+        const destinationId = f.destination_airport?.airport_id ?? flight.destination_airport_id ?? '';
+        const terminalId = f.terminal?.terminal_id ?? flight.terminal_id ?? '';
+        const gateId = f.gate?.gate_id ?? flight.gate_id ?? '';
+        const statusId = f.status?.status_id ?? flight.status_id ?? '';
+
+        const newData = {
+          airline_id: String(airlineId),
+          origin_airport_id: String(originId),
+          destination_airport_id: String(destinationId),
+          gate_id: String(gateId),
+          terminal_id: String(terminalId),
+          status_id: String(statusId),
+          flight_type: f.flight_type ?? flight.flight_type,
+          scheduled_time: (f.scheduled_time ?? flight.scheduled_time ?? '').slice(0, 16),
+          actual_time: (f.actual_time ?? flight.actual_time ?? '').slice(0, 16),
+        };
+        setFormData(newData);
+        setModalOpen(true);
+      } catch (e) {
+        // Fallback to existing data if fetch fails
+        const fallback = {
+          airline_id: String(flight.airline_id ?? ''),
+          origin_airport_id: String(flight.origin_airport_id ?? ''),
+          destination_airport_id: String(flight.destination_airport_id ?? ''),
+          gate_id: String(flight.gate_id ?? ''),
+          terminal_id: String(flight.terminal_id ?? ''),
+          status_id: String(flight.status_id ?? ''),
+          flight_type: flight.flight_type,
+          scheduled_time: flight.scheduled_time ? flight.scheduled_time.slice(0, 16) : '',
+          actual_time: flight.actual_time ? flight.actual_time.slice(0, 16) : '',
+        };
+        setFormData(fallback);
+        setModalOpen(true);
+      }
     } else {
       setEditingFlight(null);
       setFormData(initialFormData);
+      setModalOpen(true);
     }
-    setModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -216,6 +244,7 @@ try {
               onChange={(airlineId) => setFormData({ ...formData, airline_id: airlineId.toString() })}
               fetchFunction={adminAirlinesApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminAirlinesApi.get}
               getOptionLabel={(airline) => `${airline.airline_code} - ${airline.airline_name}`}
               getOptionValue={(airline) => airline.id}
               placeholder="Select Airline"
@@ -227,6 +256,7 @@ try {
               onChange={(airportId) => setFormData({ ...formData, origin_airport_id: airportId.toString() })}
               fetchFunction={adminAirportsApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminAirportsApi.get}
               getOptionLabel={(airport) => `${airport.airport_code} - ${airport.airport_name}`}
               getOptionValue={(airport) => airport.id}
               placeholder="Select Origin"
@@ -238,6 +268,7 @@ try {
               onChange={(airportId) => setFormData({ ...formData, destination_airport_id: airportId.toString() })}
               fetchFunction={adminAirportsApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminAirportsApi.get}
               getOptionLabel={(airport) => `${airport.airport_code} - ${airport.airport_name}`}
               getOptionValue={(airport) => airport.id}
               placeholder="Select Destination"
@@ -249,6 +280,7 @@ try {
               onChange={(terminalId) => setFormData({ ...formData, terminal_id: terminalId.toString() })}
               fetchFunction={adminTerminalsApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminTerminalsApi.get}
               getOptionLabel={(terminal) => `${terminal.terminal_code} - ${terminal.terminal_name}`}
               getOptionValue={(terminal) => terminal.id}
               placeholder="Select Terminal"
@@ -260,6 +292,7 @@ try {
               onChange={(gateId) => setFormData({ ...formData, gate_id: gateId.toString() })}
               fetchFunction={adminGatesApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminGatesApi.get}
               getOptionLabel={(gate) => gate.gate_code}
               getOptionValue={(gate) => gate.id}
               placeholder="Select Gate"
@@ -283,6 +316,7 @@ try {
               onChange={(statusId) => setFormData({ ...formData, status_id: statusId.toString() })}
               fetchFunction={adminFlightStatusesApi.list}
               fetchParams={{ per_page: '100' }}
+              fetchById={adminFlightStatusesApi.get}
               getOptionLabel={(status) => status.status_name}
               getOptionValue={(status) => status.id}
               placeholder="Select Status"

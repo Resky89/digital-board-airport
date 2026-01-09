@@ -54,19 +54,33 @@ export default function CitiesPage() {
     fetchRelatedData();
   }, [fetchCities, fetchRelatedData]);
 
-  const handleOpenModal = (city?: City) => {
+  const handleOpenModal = async (city?: City) => {
     if (city) {
       setEditingCity(city);
-      setFormData({
-        city_code: city.city_code,
-        city_name: city.city_name,
-        country_id: String(city.country_id ?? ''),
-      });
+      try {
+        const res = await adminCitiesApi.get((city as any).id ?? (city as any).city_id);
+        const c = res?.data || {};
+        const countryId = c.country?.id ?? c.country_id ?? city.country_id ?? '';
+        const newData = {
+          city_code: c.city_code ?? city.city_code ?? '',
+          city_name: c.city_name ?? city.city_name ?? '',
+          country_id: String(countryId),
+        };
+        setFormData(newData);
+        setModalOpen(true);
+      } catch {
+        setFormData({
+          city_code: city.city_code,
+          city_name: city.city_name,
+          country_id: String(city.country_id ?? ''),
+        });
+        setModalOpen(true);
+      }
     } else {
       setEditingCity(null);
       setFormData(initialFormData);
+      setModalOpen(true);
     }
-    setModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -181,6 +195,7 @@ export default function CitiesPage() {
             onChange={(countryId) => setFormData({ ...formData, country_id: countryId.toString() })}
             fetchFunction={adminCountriesApi.list}
             fetchParams={{ per_page: '100' }}
+            fetchById={adminCountriesApi.get}
             getOptionLabel={(country) => `${country.country_name} (${country.country_code})`}
             getOptionValue={(country) => country.id}
             placeholder="Select Country"

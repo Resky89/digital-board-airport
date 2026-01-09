@@ -17,6 +17,7 @@ interface LazySelectProps<T extends { id: number; [key: string]: unknown }> {
     };
   }>;
   fetchParams?: Record<string, string>;
+  fetchById?: (id: number) => Promise<any>;
   getOptionLabel: (item: T) => string;
   getOptionValue: (item: T) => number;
   placeholder?: string;
@@ -32,6 +33,7 @@ export default function LazySelect<T extends { id: number }>({
   onChange,
   fetchFunction,
   fetchParams = {},
+  fetchById,
   getOptionLabel,
   getOptionValue,
   placeholder = 'Select option',
@@ -42,6 +44,7 @@ export default function LazySelect<T extends { id: number }>({
 }: LazySelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedItem, setSelectedItem] = useState<T | null>(null);
   
   const {
     data: options,
@@ -82,6 +85,41 @@ export default function LazySelect<T extends { id: number }>({
     }
   }, [value, isOpen, refresh]);
 
+  useEffect(() => {
+    if (!value) {
+      setSelectedItem(null);
+      return;
+    }
+    if (!isOpen && typeof fetchById === 'function') {
+      const idNum = Number(value);
+      if (!Number.isNaN(idNum)) {
+        const exists = options.some(opt => getOptionValue(opt) === idNum);
+        if (!exists) {
+          let active = true;
+          fetchById(idNum)
+            .then((res: any) => {
+              if (!active) return;
+              let item: T | null = null;
+              if (res && typeof res === 'object') {
+                if ('success' in res && res.success && 'data' in res) {
+                  item = res.data as T;
+                } else if ('data' in res) {
+                  item = res.data as T;
+                } else {
+                  item = res as T;
+                }
+              }
+              if (item) setSelectedItem(item);
+            })
+            .catch(() => {});
+          return () => {
+            active = false;
+          };
+        }
+      }
+    }
+  }, [value, isOpen, fetchById, options, getOptionValue]);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     if (element.scrollHeight - element.scrollTop <= element.clientHeight + 50 && hasMore && !loadingMore) {
@@ -90,6 +128,7 @@ export default function LazySelect<T extends { id: number }>({
   };
 
   const selectedOption = value ? options.find(opt => getOptionValue(opt) === Number(value)) : null;
+  const displaySelected = selectedOption || selectedItem;
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -115,8 +154,8 @@ export default function LazySelect<T extends { id: number }>({
           aria-expanded={isOpen}
           aria-haspopup="listbox"
         >
-          <span className={selectedOption ? 'text-white' : 'text-white/40'}>
-            {selectedOption ? getOptionLabel(selectedOption) : placeholder}
+          <span className={displaySelected ? 'text-white' : 'text-white/40'}>
+            {displaySelected ? getOptionLabel(displaySelected) : placeholder}
           </span>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             {isOpen && loading ? (
@@ -185,12 +224,14 @@ export default function LazySelect<T extends { id: number }>({
                   }}
                   onClick={() => {
                     onChange(getOptionValue(option));
+                    setSelectedItem(null);
                     setIsOpen(false);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       onChange(getOptionValue(option));
+                      setSelectedItem(null);
                       setIsOpen(false);
                     }
                   }}

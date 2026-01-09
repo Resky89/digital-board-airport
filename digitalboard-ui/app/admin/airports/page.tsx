@@ -54,19 +54,33 @@ const fetchAirports = useCallback(async () => {
     fetchRelatedData();
   }, [fetchAirports, fetchRelatedData]);
 
-const handleOpenModal = (airport?: Airport) => {
+const handleOpenModal = async (airport?: Airport) => {
     if (airport) {
       setEditingAirport(airport);
-setFormData({
-        airport_code: airport.airport_code,
-        airport_name: airport.airport_name,
-        city_id: String(airport.city_id ?? ''),
-      });
+      try {
+        const res = await adminAirportsApi.get((airport as any).id ?? (airport as any).airport_id);
+        const a = res?.data || {};
+        const cityId = a.city?.id ?? a.city_id ?? airport.city_id ?? '';
+        const newData = {
+          airport_code: a.airport_code ?? airport.airport_code ?? '',
+          airport_name: a.airport_name ?? airport.airport_name ?? '',
+          city_id: String(cityId),
+        };
+        setFormData(newData);
+        setModalOpen(true);
+      } catch {
+        setFormData({
+          airport_code: airport.airport_code,
+          airport_name: airport.airport_name,
+          city_id: String(airport.city_id ?? ''),
+        });
+        setModalOpen(true);
+      }
     } else {
       setEditingAirport(null);
       setFormData(initialFormData);
+      setModalOpen(true);
     }
-    setModalOpen(true);
   };
 
 const handleCloseModal = () => {
@@ -182,6 +196,7 @@ const columns = [
             onChange={(cityId) => setFormData({ ...formData, city_id: cityId.toString() })}
             fetchFunction={adminCitiesApi.list}
             fetchParams={{ per_page: '100' }}
+            fetchById={adminCitiesApi.get}
             getOptionLabel={(city) => `${city.city_name} (${city.country?.country_name || city.country_id})`}
             getOptionValue={(city) => city.id}
             placeholder="Select City"
