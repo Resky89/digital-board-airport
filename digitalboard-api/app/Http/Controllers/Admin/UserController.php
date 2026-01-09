@@ -30,7 +30,7 @@ class UserController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => UserResource::collection(collect($items->items())),
+            'items' => UserResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

@@ -28,14 +28,10 @@ export default function FlightBoard() {
 
       const response = await publicApi.getFlights(params);
       if (response.success) {
-        const items = Array.isArray(response?.data?.items)
-          ? response.data.items
-          : Array.isArray(response?.data)
-          ? response.data
-          : [];
+        const items = response?.data?.items || [];
         const flightsData: Flight[] = items.map((item: any) => ({
           ...item,
-          id: item.id ?? item.flight_id,
+          id: item.id || item.flight_id,
           flight_type: (item.flight_type || '').toString().toLowerCase(),
         }));
         setFlights(flightsData);

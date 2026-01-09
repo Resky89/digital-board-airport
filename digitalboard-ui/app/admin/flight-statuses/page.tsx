@@ -21,11 +21,11 @@ export default function FlightStatusesPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<FlightStatus | null>(null);
 
-  const fetchStatuses = useCallback(async () => {
+const fetchStatuses = useCallback(async () => {
     try {
       const response = await adminFlightStatusesApi.list({ per_page: '100' });
       if (response.success) {
-        setStatuses(response.data || []);
+        setStatuses(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data flight statuses', type: 'error' });

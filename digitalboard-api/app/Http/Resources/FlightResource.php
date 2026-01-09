@@ -9,7 +9,8 @@ class FlightResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        return [
+return [
+            'id' => $this->flight_id,
             'flight_id' => $this->flight_id,
             'flight_code' => $this->flight_code,
             'flight_type' => $this->flight_type,

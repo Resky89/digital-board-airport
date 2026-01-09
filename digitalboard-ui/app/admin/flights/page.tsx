@@ -35,11 +35,11 @@ export default function FlightsPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Flight | null>(null);
 
-  const fetchFlights = useCallback(async () => {
+const fetchFlights = useCallback(async () => {
     try {
-      const response = await adminFlightsApi.list({ per_page: '100' });
+const response = await adminFlightsApi.list({ per_page: '100' });
       if (response.success) {
-        setFlights(response.data || []);
+        setFlights(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data flights', type: 'error' });
@@ -48,7 +48,7 @@ export default function FlightsPage() {
     }
   }, []);
 
-  const fetchRelatedData = useCallback(async () => {
+const fetchRelatedData = useCallback(async () => {
     try {
       const [airlinesRes, airportsRes, terminalsRes, gatesRes, statusesRes] = await Promise.all([
         adminAirlinesApi.list({ per_page: '100' }),
@@ -57,11 +57,11 @@ export default function FlightsPage() {
         adminGatesApi.list({ per_page: '100' }),
         adminFlightStatusesApi.list({ per_page: '100' }),
       ]);
-      setAirlines(Array.isArray(airlinesRes.data) ? airlinesRes.data : []);
-      setAirports(Array.isArray(airportsRes.data) ? airportsRes.data : []);
-      setTerminals(Array.isArray(terminalsRes.data) ? terminalsRes.data : []);
-      setGates(Array.isArray(gatesRes.data) ? gatesRes.data : []);
-      setStatuses(Array.isArray(statusesRes.data) ? statusesRes.data : []);
+setAirlines(airlinesRes.data?.items || []);
+      setAirports(airportsRes.data?.items || []);
+      setTerminals(terminalsRes.data?.items || []);
+      setGates(gatesRes.data?.items || []);
+      setStatuses(statusesRes.data?.items || []);
     } catch {
       console.error('Failed to fetch related data');
     }
@@ -118,7 +118,7 @@ export default function FlightsPage() {
         actual_time: formData.actual_time ? new Date(formData.actual_time).toISOString() : null,
       };
 
-      let response;
+let response;
       if (editingFlight) {
         response = await adminFlightsApi.update(editingFlight.id, payload);
       } else {
@@ -142,7 +142,7 @@ export default function FlightsPage() {
   const handleDelete = async () => {
     if (!deleteConfirm) return;
     
-    try {
+try {
       const response = await adminFlightsApi.delete(deleteConfirm.id);
       if (response.success) {
         setToast({ message: 'Flight berhasil dihapus', type: 'success' });
@@ -232,7 +232,7 @@ export default function FlightsPage() {
                 required
               >
                 <option value="">Select Airline</option>
-                {airlines.map((a) => (
+{Array.isArray(airlines) && airlines.map((a) => (
                   <option key={a.id} value={a.id}>{a.airline_name}</option>
                 ))}
               </select>
@@ -245,8 +245,8 @@ export default function FlightsPage() {
                 className="input-field"
                 required
               >
-                <option value="">Select Origin</option>
-                {airports.map((a) => (
+<option value="">Select Origin</option>
+                {Array.isArray(airports) && airports.map((a) => (
                   <option key={a.id} value={a.id}>{a.airport_code} - {a.airport_name}</option>
                 ))}
               </select>
@@ -259,8 +259,8 @@ export default function FlightsPage() {
                 className="input-field"
                 required
               >
-                <option value="">Select Destination</option>
-                {airports.map((a) => (
+<option value="">Select Destination</option>
+                {Array.isArray(airports) && airports.map((a) => (
                   <option key={a.id} value={a.id}>{a.airport_code} - {a.airport_name}</option>
                 ))}
               </select>
@@ -273,8 +273,8 @@ export default function FlightsPage() {
                 className="input-field"
                 required
               >
-                <option value="">Select Terminal</option>
-                {terminals.map((t) => (
+<option value="">Select Terminal</option>
+                {Array.isArray(terminals) && terminals.map((t) => (
                   <option key={t.id} value={t.id}>{t.terminal_code} - {t.terminal_name}</option>
                 ))}
               </select>
@@ -287,8 +287,8 @@ export default function FlightsPage() {
                 className="input-field"
                 required
               >
-                <option value="">Select Gate</option>
-                {gates.map((g) => (
+<option value="">Select Gate</option>
+                {Array.isArray(gates) && gates.map((g) => (
                   <option key={g.id} value={g.id}>{g.gate_code}</option>
                 ))}
               </select>
@@ -313,8 +313,8 @@ export default function FlightsPage() {
                 className="input-field"
                 required
               >
-                <option value="">Select Status</option>
-                {statuses.map((s) => (
+<option value="">Select Status</option>
+                {Array.isArray(statuses) && statuses.map((s) => (
                   <option key={s.id} value={s.id}>{s.status_name}</option>
                 ))}
               </select>

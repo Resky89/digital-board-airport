@@ -7,12 +7,14 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   success: boolean;
-  data: T[];
-  meta: {
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
+  data: {
+    items: T[];
+    pagination: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
   };
 }
 
@@ -45,6 +47,16 @@ export interface Country {
   updated_at: string;
 }
 
+export interface City {
+  id: number;
+  city_code: string;
+  city_name: string;
+  country_id: number;
+  country?: Country;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Airline {
   id: number;
   airline_code: string;
@@ -57,8 +69,8 @@ export interface Airport {
   id: number;
   airport_code: string;
   airport_name: string;
-  city: string;
-  country_id: number;
+  city_id: number;
+  city?: City;
   country?: Country;
   created_at: string;
   updated_at: string;
@@ -91,6 +103,7 @@ export interface FlightStatus {
 
 export interface Flight {
   id: number;
+  flight_id: number;
   flight_code: string;
   airline_id: number;
   airline?: Airline;
@@ -138,7 +151,12 @@ export interface AirlineFormData {
 export interface AirportFormData {
   airport_code: string;
   airport_name: string;
-  city: string;
+  city_id: number | '';
+}
+
+export interface CityFormData {
+  city_code: string;
+  city_name: string;
   country_id: number | '';
 }
 

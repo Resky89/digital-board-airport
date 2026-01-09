@@ -20,11 +20,7 @@ class Airport extends Model
         return $this->belongsTo(City::class, 'city_id', 'city_id');
     }
 
-    public function country(): BelongsTo
-    {
-        // Akses country melalui city
-        return $this->city->country();
-    }
+
 
     public function getRouteKeyName(): string
     {

@@ -23,11 +23,11 @@ export default function UsersPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null);
 
-  const fetchUsers = useCallback(async () => {
+const fetchUsers = useCallback(async () => {
     try {
       const response = await adminUsersApi.list({ per_page: '100' });
       if (response.success) {
-        setUsers(response.data || []);
+        setUsers(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data users', type: 'error' });

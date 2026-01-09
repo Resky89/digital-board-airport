@@ -30,7 +30,7 @@ class TerminalController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => TerminalResource::collection(collect($items->items())),
+            'items' => TerminalResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

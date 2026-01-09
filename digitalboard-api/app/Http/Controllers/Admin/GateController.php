@@ -41,7 +41,7 @@ class GateController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => GateResource::collection(collect($items->items())),
+            'items' => GateResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

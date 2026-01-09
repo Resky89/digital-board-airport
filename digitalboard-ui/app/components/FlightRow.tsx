@@ -52,7 +52,7 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
       {/* Origin */}
       <div className="col-span-2">
         <div className="text-2xl font-bold text-white">{flight.origin_airport?.airport_code || '-'}</div>
-        <div className="text-sm text-white/60 truncate">{flight.origin_airport?.city || '-'}</div>
+        <div className="text-sm text-white/60 truncate">{flight.origin_airport?.city?.city_name || '-'}</div>
       </div>
 
       {/* Arrow */}
@@ -73,7 +73,7 @@ export default function FlightRow({ flight, index }: FlightRowProps) {
       {/* Destination */}
       <div className="col-span-2">
         <div className="text-2xl font-bold text-white">{flight.destination_airport?.airport_code || '-'}</div>
-        <div className="text-sm text-white/60 truncate">{flight.destination_airport?.city || '-'}</div>
+        <div className="text-sm text-white/60 truncate">{flight.destination_airport?.city?.city_name || '-'}</div>
       </div>
 
       {/* Time */}

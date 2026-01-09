@@ -23,11 +23,11 @@ export default function GatesPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Gate | null>(null);
 
-  const fetchGates = useCallback(async () => {
+const fetchGates = useCallback(async () => {
     try {
       const response = await adminGatesApi.list({ per_page: '100' });
       if (response.success) {
-        setGates(response.data || []);
+        setGates(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data gates', type: 'error' });
@@ -36,11 +36,11 @@ export default function GatesPage() {
     }
   }, []);
 
-  const fetchTerminals = useCallback(async () => {
+const fetchTerminals = useCallback(async () => {
     try {
       const response = await adminTerminalsApi.list({ per_page: '100' });
-      if (response.success && Array.isArray(response.data)) {
-        setTerminals(response.data);
+      if (response.success) {
+        setTerminals(response.data?.items || []);
       }
     } catch {
       console.error('Failed to fetch terminals');

@@ -81,30 +81,7 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   return response;
 };
 
-// Helper untuk menormalisasi response list API
-// Backend mengembalikan { data: { items: [...] } } atau { data: [...] }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const normalizeListResponse = (json: Record<string, any>): { data: any[]; success: boolean; meta?: any } => {
 
-  let items: any[] = [];
-  
-  if (json.data && json.data.items && Array.isArray(json.data.items)) {
-    // Struktur: { data: { items: [...] } }
-    items = json.data.items;
-  } else if (json.items && Array.isArray(json.items)) {
-    // Struktur: { items: [...] }
-    items = json.items;
-  } else if (Array.isArray(json.data)) {
-    // Struktur: { data: [...] }
-    items = json.data;
-  }
-  
-  return {
-    ...json,
-    data: items,
-    success: json.success !== false, 
-  };
-};
 
 // Public API
 export const publicApi = {
@@ -165,7 +142,7 @@ export const adminFlightsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/flights${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -202,7 +179,7 @@ export const adminCountriesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/countries${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -239,7 +216,7 @@ export const adminAirlinesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/airlines${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -271,12 +248,49 @@ export const adminAirlinesApi = {
   },
 };
 
+// Admin API - Cities
+export const adminCitiesApi = {
+  list: async (params?: Record<string, string>) => {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await fetchWithAuth(`/api/admin/cities${queryString}`);
+    return response.json();
+  },
+
+  get: async (id: number) => {
+    const response = await fetchWithAuth(`/api/admin/cities/${id}`);
+    return response.json();
+  },
+
+  create: async (data: object) => {
+    const response = await fetchWithAuth('/api/admin/cities', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
+  update: async (id: number, data: object) => {
+    const response = await fetchWithAuth(`/api/admin/cities/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
+  delete: async (id: number) => {
+    const response = await fetchWithAuth(`/api/admin/cities/${id}`, {
+      method: 'DELETE',
+    });
+    return response.json();
+  },
+};
+
 // Admin API - Airports
 export const adminAirportsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/airports${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -313,7 +327,7 @@ export const adminTerminalsApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/terminals${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -350,7 +364,7 @@ export const adminGatesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/gates${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -387,7 +401,7 @@ export const adminFlightStatusesApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/flight-statuses${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {
@@ -424,7 +438,7 @@ export const adminUsersApi = {
   list: async (params?: Record<string, string>) => {
     const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
     const response = await fetchWithAuth(`/api/admin/users${queryString}`);
-    return normalizeListResponse(await response.json());
+    return response.json();
   },
 
   get: async (id: number) => {

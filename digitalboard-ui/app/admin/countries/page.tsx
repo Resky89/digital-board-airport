@@ -22,11 +22,11 @@ export default function CountriesPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Country | null>(null);
 
-  const fetchCountries = useCallback(async () => {
+const fetchCountries = useCallback(async () => {
     try {
       const response = await adminCountriesApi.list({ per_page: '100' });
       if (response.success) {
-        setCountries(response.data || []);
+        setCountries(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data countries', type: 'error' });

@@ -22,11 +22,11 @@ export default function AirlinesPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Airline | null>(null);
 
-  const fetchAirlines = useCallback(async () => {
+const fetchAirlines = useCallback(async () => {
     try {
       const response = await adminAirlinesApi.list({ per_page: '100' });
       if (response.success) {
-        setAirlines(response.data || []);
+        setAirlines(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data airlines', type: 'error' });

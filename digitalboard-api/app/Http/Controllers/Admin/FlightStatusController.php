@@ -30,7 +30,7 @@ class FlightStatusController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => FlightStatusResource::collection(collect($items->items())),
+            'items' => FlightStatusResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

@@ -33,7 +33,7 @@ class FlightController extends Controller
             ->appends($request->query());
 
         $data = [
-            'items' => FlightResource::collection(collect($flights->items())),
+            'items' => FlightResource::collection($flights->items()),
             'pagination' => $this->paginationMeta($flights),
         ];
 

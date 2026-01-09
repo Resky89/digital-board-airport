@@ -59,8 +59,8 @@ class AirportController extends Controller
             ->paginate($perPage)
             ->appends($request->query());
 
-        return $this->success([
-            'items' => AirportResource::collection(collect($items->items())),
+return $this->success([
+            'items' => AirportResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

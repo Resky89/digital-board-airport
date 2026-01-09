@@ -51,7 +51,7 @@ class CityController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => CityResource::collection(collect($items->items())),
+            'items' => CityResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

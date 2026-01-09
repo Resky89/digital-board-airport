@@ -30,7 +30,7 @@ class CountryController extends Controller
             ->appends($request->query());
 
         return $this->success([
-            'items' => CountryResource::collection(collect($items->items())),
+            'items' => CountryResource::collection($items->items()),
             'pagination' => $this->paginationMeta($items),
         ]);
     }

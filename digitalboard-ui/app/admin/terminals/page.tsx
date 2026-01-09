@@ -23,11 +23,11 @@ export default function TerminalsPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<Terminal | null>(null);
 
-  const fetchTerminals = useCallback(async () => {
+const fetchTerminals = useCallback(async () => {
     try {
       const response = await adminTerminalsApi.list({ per_page: '100' });
       if (response.success) {
-        setTerminals(response.data || []);
+        setTerminals(response.data?.items || []);
       }
     } catch {
       setToast({ message: 'Gagal memuat data terminals', type: 'error' });
