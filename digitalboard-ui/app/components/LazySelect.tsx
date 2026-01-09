@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLazyLoad } from '@/app/hooks/useLazyLoad';
 import LoadingSpinner from './LoadingSpinner';
 
@@ -54,7 +54,7 @@ export default function LazySelect<T extends { id: number }>({
     refresh,
   } = useLazyLoad<T>({
     fetchFunction,
-    initialParams: fetchParams,
+    initialParams: useMemo(() => fetchParams, [JSON.stringify(fetchParams)]),
     pageSize,
   });
 
@@ -119,7 +119,7 @@ export default function LazySelect<T extends { id: number }>({
             {selectedOption ? getOptionLabel(selectedOption) : placeholder}
           </span>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            {loading ? (
+            {isOpen && loading ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <svg
@@ -175,7 +175,7 @@ export default function LazySelect<T extends { id: number }>({
             ) : (
               options.map((option, index) => (
                 <div
-                  key={option.id}
+                  key={getOptionValue(option)}
                   className={`px-3 py-2 cursor-pointer hover:bg-white/10 transition-colors outline-none ${
                     getOptionValue(option) === Number(value) ? 'bg-primary/30' : ''
                   }`}
